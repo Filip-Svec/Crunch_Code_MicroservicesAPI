@@ -1,6 +1,10 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microservice1", "Microservice1\Microservice1.csproj", "{B3D14795-298D-4CD0-97D0-9D8175ABAE55}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MicroservicesAPI.Csharp", "MicroservicesAPI.Csharp\MicroservicesAPI.Csharp.csproj", "{B3D14795-298D-4CD0-97D0-9D8175ABAE55}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MicroservicesAPI.Python", "MicroservicesAPI.Python\MicroservicesAPI.Python.csproj", "{10BFD746-7145-458B-A033-37796CA30B69}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MicroservicesAPI.Shared", "MicroservicesAPI.Shared\MicroservicesAPI.Shared.csproj", "{30201901-8051-4A18-AFCE-207CBDA58326}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -12,5 +16,13 @@ Global
 		{B3D14795-298D-4CD0-97D0-9D8175ABAE55}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B3D14795-298D-4CD0-97D0-9D8175ABAE55}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B3D14795-298D-4CD0-97D0-9D8175ABAE55}.Release|Any CPU.Build.0 = Release|Any CPU
+		{10BFD746-7145-458B-A033-37796CA30B69}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{10BFD746-7145-458B-A033-37796CA30B69}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{10BFD746-7145-458B-A033-37796CA30B69}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{10BFD746-7145-458B-A033-37796CA30B69}.Release|Any CPU.Build.0 = Release|Any CPU
+		{30201901-8051-4A18-AFCE-207CBDA58326}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{30201901-8051-4A18-AFCE-207CBDA58326}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{30201901-8051-4A18-AFCE-207CBDA58326}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{30201901-8051-4A18-AFCE-207CBDA58326}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
