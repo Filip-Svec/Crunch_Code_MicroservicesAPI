@@ -4,7 +4,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MicroservicesAPI.Csharp", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MicroservicesAPI.Python", "MicroservicesAPI.Python\MicroservicesAPI.Python.csproj", "{10BFD746-7145-458B-A033-37796CA30B69}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MicroservicesAPI.Shared", "MicroservicesAPI.Shared\MicroservicesAPI.Shared.csproj", "{30201901-8051-4A18-AFCE-207CBDA58326}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MicroservicesAPI.Common", "MicroservicesAPI.Common\MicroservicesAPI.Common.csproj", "{EA03D180-8473-4700-9287-32C032DFA70B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -20,9 +20,9 @@ Global
 		{10BFD746-7145-458B-A033-37796CA30B69}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{10BFD746-7145-458B-A033-37796CA30B69}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{10BFD746-7145-458B-A033-37796CA30B69}.Release|Any CPU.Build.0 = Release|Any CPU
-		{30201901-8051-4A18-AFCE-207CBDA58326}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{30201901-8051-4A18-AFCE-207CBDA58326}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{30201901-8051-4A18-AFCE-207CBDA58326}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{30201901-8051-4A18-AFCE-207CBDA58326}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EA03D180-8473-4700-9287-32C032DFA70B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EA03D180-8473-4700-9287-32C032DFA70B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EA03D180-8473-4700-9287-32C032DFA70B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EA03D180-8473-4700-9287-32C032DFA70B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

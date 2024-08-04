@@ -465,11 +465,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Asus\\FEI\\Diplomka\\Codes\\DP_microservices\\MicroservicesAPI\\MicroservicesAPI.Shared\\MicroservicesAPI.Shared.csproj",
-      "projectName": "MicroservicesAPI.Shared",
-      "projectPath": "C:\\Users\\Asus\\FEI\\Diplomka\\Codes\\DP_microservices\\MicroservicesAPI\\MicroservicesAPI.Shared\\MicroservicesAPI.Shared.csproj",
+      "projectUniqueName": "C:\\Users\\Asus\\FEI\\Diplomka\\Codes\\DP_microservices\\MicroservicesAPI\\MicroservicesAPI.Common\\MicroservicesAPI.Common.csproj",
+      "projectName": "MicroservicesAPI.Common",
+      "projectPath": "C:\\Users\\Asus\\FEI\\Diplomka\\Codes\\DP_microservices\\MicroservicesAPI\\MicroservicesAPI.Common\\MicroservicesAPI.Common.csproj",
       "packagesPath": "C:\\Users\\Asus\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Asus\\FEI\\Diplomka\\Codes\\DP_microservices\\MicroservicesAPI\\MicroservicesAPI.Shared\\obj\\",
+      "outputPath": "C:\\Users\\Asus\\FEI\\Diplomka\\Codes\\DP_microservices\\MicroservicesAPI\\MicroservicesAPI.Common\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\Asus\\AppData\\Roaming\\NuGet\\NuGet.Config"
