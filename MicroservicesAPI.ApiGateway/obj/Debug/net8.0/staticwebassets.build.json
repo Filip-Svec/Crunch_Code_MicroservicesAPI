@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "xoiYxhc8XPfwhFRNl4hPQ3run5ZdVMQplelMVDsMB8c=",
+  "Source": "MicroservicesAPI.ApiGateway",
+  "BasePath": "_content/MicroservicesAPI.ApiGateway",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}
