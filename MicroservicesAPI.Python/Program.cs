@@ -1,3 +1,4 @@
+using MicroservicesAPI.Python.Controllers;
 using MicroservicesAPI.Python.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -19,5 +20,9 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.MapControllers();
+
+//Minimal APIs -- requires mapping of all Endpoint.cs files in specific project
+// - or the use of extension Carter
+app.MapPythonEndpoints();
 
 app.Run();
