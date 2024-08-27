@@ -1,4 +1,4 @@
-using MicroservicesAPI.Python.Controllers;
+using MicroservicesAPI.Python.Endpoints;
 using MicroservicesAPI.Python.Services;
 
 var builder = WebApplication.CreateBuilder(args);

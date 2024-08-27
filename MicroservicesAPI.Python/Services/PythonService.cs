@@ -1,12 +1,13 @@
-﻿using Microsoft.AspNetCore.Http.HttpResults;
+﻿using MicroservicesAPI.Common.DTOs;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace MicroservicesAPI.Python.Services;
 
 public class PythonService
 {
-    public String InterpretUsersCode(String usersCode)
+    public String InterpretUsersCode(SubmittedCodeDto submittedCodeDto)
     {
-        return usersCode.Replace('a', 'b');
+        return submittedCodeDto.UsersCode.Replace('a', 'b');
     }
     
 }

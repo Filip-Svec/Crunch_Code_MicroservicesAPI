@@ -2,11 +2,11 @@
   "Routes": [
     {
       "DownstreamPathTemplate": "/Code/Python",
-      "DownstreamScheme": "http",
+      "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 5011
+          "Port": 7184
         }
       ],
       "UpstreamPathTemplate": "/Code/Python",
@@ -14,23 +14,23 @@
     },
     {
       "DownstreamPathTemplate": "/Code/Python/get",
-      "DownstreamScheme": "http",
+      "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 5011
+          "Port": 7184
         }
       ],
-      "UpstreamPathTemplate": "/Code/Python/get",
+      "UpstreamPathTemplate": "/Code/Python/get", 
       "UpstreamHttpMethod": [ "GET" ]
     },
     {
       "DownstreamPathTemplate": "/Code/JavaScript",
-      "DownstreamScheme": "http",
+      "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 5247
+          "Port": 7199
         }
       ],
       "UpstreamPathTemplate": "/Code/JavaScript",
@@ -38,11 +38,11 @@
     },
     {
       "DownstreamPathTemplate": "/Code/JavaScript/get",
-      "DownstreamScheme": "http",
+      "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 5247
+          "Port": 7199
         }
       ],
       "UpstreamPathTemplate": "/Code/JavaScript/get",
