@@ -8,5 +8,5 @@ public class SubmittedCodeDto
     public String UsersCode { get; set; }
     
     [JsonPropertyName("Result")]
-    public ResultDto Result { get; set; }
+    public SolutionDto Solution { get; set; }
 }

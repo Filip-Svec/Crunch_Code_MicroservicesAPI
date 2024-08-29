@@ -1,5 +1,7 @@
 ﻿using MicroservicesAPI.Common.DTOs;
 using MicroservicesAPI.Python.Services;
+using MicroservicesAPI.Shared;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace MicroservicesAPI.Python.Endpoints;
@@ -20,16 +22,17 @@ public static class PythonEndpoints
         [FromBody] SubmittedCodeDto submittedCode,
         PythonService pythonService)
     {
-        try
+        ResultState resultState = await pythonService.ProcessUsersCode(submittedCode);
+        
+        if (resultState != ResultState.Unknown)
         {
-            pythonService.InterpretUsersCode(submittedCode);
+            return Results.Ok(pythonService.BuildResponseDto(resultState));
         }
-        catch (Exception e)
+        else
         {
-            Console.WriteLine(e);
-            return Results.BadRequest(e.Message);
+            return Results.BadRequest(pythonService.BuildResponseDto(resultState));
         }
-        return Results.Ok("fine");
+        
     }
     
     public static async Task<IResult> GetTestString()

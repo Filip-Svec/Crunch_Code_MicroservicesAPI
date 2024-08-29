@@ -32,3 +32,5 @@ C:\Users\Asus\FEI\Diplomka\Codes\DP_microservices\MicroservicesAPI\Microservices
 C:\Users\Asus\FEI\Diplomka\Codes\DP_microservices\MicroservicesAPI\MicroservicesAPI.Python\obj\Debug\net8.0\MicroservicesAPI.Python.pdb
 C:\Users\Asus\FEI\Diplomka\Codes\DP_microservices\MicroservicesAPI\MicroservicesAPI.Python\obj\Debug\net8.0\MicroservicesAPI.Python.genruntimeconfig.cache
 C:\Users\Asus\FEI\Diplomka\Codes\DP_microservices\MicroservicesAPI\MicroservicesAPI.Python\obj\Debug\net8.0\ref\MicroservicesAPI.Python.dll
+C:\Users\Asus\FEI\Diplomka\Codes\DP_microservices\MicroservicesAPI\MicroservicesAPI.Python\bin\Debug\net8.0\MicroservicesAPI.Shared.dll
+C:\Users\Asus\FEI\Diplomka\Codes\DP_microservices\MicroservicesAPI\MicroservicesAPI.Python\bin\Debug\net8.0\MicroservicesAPI.Shared.pdb

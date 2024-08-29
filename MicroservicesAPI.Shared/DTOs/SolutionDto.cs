@@ -3,11 +3,12 @@ using System.Text.Json.Serialization;
 
 namespace MicroservicesAPI.Common.DTOs;
 
-public class ResultDto
+public class SolutionDto
 {
-    [JsonPropertyName("Type")]
-    public String Type { get; set; }
+    [JsonPropertyName("ValueType")]
+    public String ValueType { get; set; }
     
     [JsonPropertyName("Value")]
     public String Value { get; set; }
+    
 }
