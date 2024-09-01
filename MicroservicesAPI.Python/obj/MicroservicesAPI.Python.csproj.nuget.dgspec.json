@@ -47,6 +47,14 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "dependencies": {
+            "IronPython": {
+              "target": "Package",
+              "version": "[3.4.1, )"
+            },
+            "IronPython.StdLib": {
+              "target": "Package",
+              "version": "[3.4.1, )"
+            },
             "Microsoft.AspNetCore.OpenApi": {
               "target": "Package",
               "version": "[8.0.6, )"

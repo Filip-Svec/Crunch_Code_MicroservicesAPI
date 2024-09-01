@@ -1,5 +1,7 @@
 ﻿using MicroservicesAPI.Common.DTOs;
 using MicroservicesAPI.Shared;
+using IronPython.Hosting;
+using Microsoft.Scripting.Hosting;
 using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace MicroservicesAPI.Python.Services;
@@ -8,14 +10,23 @@ public class PythonService
 {
     public async Task<ResultState> ProcessUsersCode(SubmittedCodeDto submittedCodeDto)
     {
-
-
-
-
-
+        ScriptEngine engine = IronPython.Hosting.Python.CreateEngine();
+        
+        try
+        {
+            engine.Execute(submittedCodeDto.UsersCode);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"An error occurred: {ex.Message}");
+            return ResultState.Unknown;
+        }
+        
         return ResultState.Success;
     }
 
+    // TODO: Response message should be handled by UNITY (different languages)
+    // could replace the 'message' with a 'debug message' to more accurately specify the error
     public ResultResponseDto BuildResponseDto(ResultState resultState)
     {
         switch (resultState)

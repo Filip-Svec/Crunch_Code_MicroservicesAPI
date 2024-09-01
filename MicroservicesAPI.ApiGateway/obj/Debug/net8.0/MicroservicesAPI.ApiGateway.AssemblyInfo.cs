@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("MicroservicesAPI.ApiGateway")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d92ac78148891e893e547bf196729288c80f3d7d")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f63c4a367e0ef80f7552a0e29f8693e18e480949")]
 [assembly: System.Reflection.AssemblyProductAttribute("MicroservicesAPI.ApiGateway")]
 [assembly: System.Reflection.AssemblyTitleAttribute("MicroservicesAPI.ApiGateway")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
