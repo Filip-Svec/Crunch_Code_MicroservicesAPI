@@ -1,20 +1,13 @@
 ﻿using System.Text.Json.Serialization;
-using MicroservicesAPI.Shared;
 
-namespace MicroservicesAPI.Common.DTOs;
+namespace MicroservicesAPI.Shared.DTOs;
 
-public class ResultResponseDto
+public class ResultResponseDto(ResultState resultState, string message)
 {
-    public ResultResponseDto(ResultState resultState, string message)
-    {
-        ResultState = resultState;
-        Message = message;
-    }
-    
     [JsonConverter(typeof(JsonStringEnumConverter))]
     [JsonPropertyName("ErrorType")]
-    public ResultState ResultState { get; set; }
-    
+    public ResultState ResultState { get; set; } = resultState;
+
     [JsonPropertyName("Message")]
-    public String Message { get; set; }
+    public String Message { get; set; } = message;
 }

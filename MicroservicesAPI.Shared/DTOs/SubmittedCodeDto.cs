@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace MicroservicesAPI.Common.DTOs;
+namespace MicroservicesAPI.Shared.DTOs;
 
 public class SubmittedCodeDto
 {

@@ -1,7 +1,6 @@
-﻿using System.Runtime.InteropServices.JavaScript;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
-namespace MicroservicesAPI.Common.DTOs;
+namespace MicroservicesAPI.Shared.DTOs;
 
 public class SolutionDto
 {

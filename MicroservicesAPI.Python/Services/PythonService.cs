@@ -1,6 +1,6 @@
-﻿using MicroservicesAPI.Common.DTOs;
-using MicroservicesAPI.Shared;
+﻿using MicroservicesAPI.Shared;
 using IronPython.Hosting;
+using MicroservicesAPI.Shared.DTOs;
 using Microsoft.Scripting.Hosting;
 using Microsoft.AspNetCore.Http.HttpResults;
 
