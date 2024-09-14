@@ -18,19 +18,21 @@ public static class PythonEndpoints
     }
 
     
-    public static async Task<IResult> SubmitUsersCode(
+    private static async Task<Results<Ok<ResultResponseDto>, UnprocessableEntity<ResultResponseDto>>> SubmitUsersCode(
         [FromBody] SubmittedCodeDto submittedCode,
         PythonService pythonService)
     {
-        ResultState resultState = await pythonService.ProcessUsersCode(submittedCode);
+        ResultResponseDto resultResponseDto = await pythonService.ProcessUsersCode(submittedCode);
         
-        if (resultState != ResultState.Unknown)
+        if (resultResponseDto.ResultState is 
+            ResultState.Success or ResultState.ValueMismatch or 
+            ResultState.TypeMismatch or ResultState.OutputLengthExceeded) 
         {
-            return Results.Ok(pythonService.BuildResponseDto(resultState));
+            return TypedResults.Ok(resultResponseDto);
         }
         else
         {
-            return Results.BadRequest(pythonService.BuildResponseDto(resultState));
+            return TypedResults.UnprocessableEntity(resultResponseDto);
         }
         
     }
