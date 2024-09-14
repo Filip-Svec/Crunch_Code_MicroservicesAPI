@@ -1,6 +1,7 @@
 ﻿using System.Data;
 using MicroservicesAPI.Shared;
 using IronPython.Hosting;
+using IronPython.Modules;
 using MicroservicesAPI.Shared.DTOs;
 using Microsoft.Scripting.Hosting;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -15,7 +16,27 @@ public class PythonService
 
         try
         {
-            engine.Execute(submittedCodeDto.UsersCode);
+            // Run execution on a separate thread 
+            var executeCodeTask = Task.Run(() => 
+            {
+                engine.Execute(submittedCodeDto.UsersCode);
+            });
+            
+            Console.WriteLine(submittedCodeDto.TimeLimitSeconds);
+
+            // Main thread waiting for either one to finish
+            if (await Task.WhenAny(executeCodeTask, 
+                    Task.Delay(submittedCodeDto.TimeLimitSeconds*1000)) == executeCodeTask)
+            {
+                // Awaiting the Task to re-throw exceptions from within the Task
+                // The task is not run again
+                await executeCodeTask;
+            }
+            else
+            {
+                // TODO kill the process gracefully after it exceeded allotted time
+                throw new TimeoutException();
+            }
         }
         catch (Microsoft.Scripting.SyntaxErrorException ex)
         {
@@ -58,45 +79,5 @@ public class PythonService
         
         return new ResultResponseDto(ResultState.Success, "this is fine", "07");
     }
-
-    
-    // could replace the 'message' with a 'debug message' to more accurately specify the error
-    
-    // public ResultResponseDto BuildResponseDto(ResultState resultState)
-    // {
-    //     switch (resultState)
-    //     {
-    //         // code executed, result match
-    //         case ResultState.Success:
-    //             return new ResultResponseDto(resultState, "Message Success");
-    //         
-    //         // code executed, result doesn't match
-    //         case ResultState.TypeMismatch:
-    //             return new ResultResponseDto(resultState, "Message Not Success");
-    //         
-    //         // code executed, result doesn't match
-    //         case ResultState.ValueMismatch:
-    //             return new ResultResponseDto(resultState, "Message Not Success");
-    //         
-    //         // code not executed, no result
-    //         case ResultState.SyntaxError:
-    //             return new ResultResponseDto(resultState, "Message Not Success");
-    //         
-    //         // code not executed, no result
-    //         case ResultState.OutOfMemory:
-    //             return new ResultResponseDto(resultState, "Message Not Success");
-    //         
-    //         // code not executed, no result
-    //         case ResultState.TimeLimitExceeded:
-    //             return new ResultResponseDto(resultState, "Message Not Success");
-    //         
-    //         // code not executed, no result
-    //         case ResultState.Unknown:
-    //             return new ResultResponseDto(resultState, "Message Not Success");
-    //             
-    //         default:
-    //             return new ResultResponseDto(resultState, "Message Other");
-    //     }
-    // }
     
 }
