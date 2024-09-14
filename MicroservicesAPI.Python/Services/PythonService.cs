@@ -15,12 +15,22 @@ public class PythonService
 
         try
         {
-            await engine.Execute(submittedCodeDto.UsersCode);
+            engine.Execute(submittedCodeDto.UsersCode);
         }
-        catch (SyntaxErrorException ex)
+        catch (Microsoft.Scripting.SyntaxErrorException ex)
         {
             Console.WriteLine($"Execution error: {ex.Message}");
             return new ResultResponseDto(ResultState.SyntaxError, ex.Message, "");
+        }
+        catch (DivideByZeroException ex)
+        {
+            Console.WriteLine($"Execution error: {ex.Message}");
+            return new ResultResponseDto(ResultState.DivideByZero, ex.Message, "");
+        }
+        catch (IronPython.Runtime.UnboundNameException ex)
+        {
+            Console.WriteLine($"Execution error: {ex.Message}");
+            return new ResultResponseDto(ResultState.UnboundName, ex.Message, "");
         }
         catch (TimeoutException ex)
         {
@@ -35,6 +45,7 @@ public class PythonService
         catch (Exception ex)
         {
             Console.WriteLine($"Execution error: {ex.Message}");
+            Console.WriteLine($"Execution error: {ex.GetType()}");
             return new ResultResponseDto(ResultState.Other, ex.Message, "");
         }
         
