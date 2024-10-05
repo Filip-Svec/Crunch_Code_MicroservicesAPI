@@ -2,7 +2,7 @@
 
 namespace MicroservicesAPI.Shared.DTOs;
 
-public class SubmittedCodeDto
+public class SubmittedSolutionDto
 {
     [JsonPropertyName("UsersCode")]
     public String UsersCode { get; set; }
@@ -11,5 +11,5 @@ public class SubmittedCodeDto
     public int TimeLimitSeconds { get; set; }
     
     [JsonPropertyName("Result")]
-    public SolutionDto Solution { get; set; }
+    public ExpectedResultDto ExpectedResult { get; set; }
 }

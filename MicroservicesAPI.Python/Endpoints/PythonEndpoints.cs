@@ -19,10 +19,10 @@ public static class PythonEndpoints
 
     
     private static async Task<Results<Ok<ResultResponseDto>, UnprocessableEntity<ResultResponseDto>>> SubmitUsersCode(
-        [FromBody] SubmittedCodeDto submittedCode,
+        [FromBody] SubmittedSolutionDto submittedSolution,
         PythonService pythonService)
     {
-        ResultResponseDto resultResponseDto = await pythonService.ProcessUsersCode(submittedCode);
+        ResultResponseDto resultResponseDto = await pythonService.ProcessUsersCode(submittedSolution);
         
         if (resultResponseDto.ResultState is 
             ResultState.Success or ResultState.ValueMismatch or 

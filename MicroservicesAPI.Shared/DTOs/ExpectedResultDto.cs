@@ -2,7 +2,7 @@
 
 namespace MicroservicesAPI.Shared.DTOs;
 
-public class SolutionDto
+public class ExpectedResultDto
 {
     [JsonPropertyName("ValueType")]
     public String ValueType { get; set; }

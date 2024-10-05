@@ -6,6 +6,7 @@ EXPOSE 443
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 COPY ["MicroservicesAPI.Python/MicroservicesAPI.Python.csproj", "MicroservicesAPI.Python/"]
+COPY ["MicroservicesAPI.Shared/MicroservicesAPI.Shared.csproj", "MicroservicesAPI.Shared/"]
 RUN dotnet restore "MicroservicesAPI.Python/MicroservicesAPI.Python.csproj"
 COPY . .
 WORKDIR "/src/MicroservicesAPI.Python"

@@ -1,4 +1,5 @@
 ﻿using System.Data;
+using System.Runtime.InteropServices;
 using MicroservicesAPI.Shared;
 using IronPython.Hosting;
 using IronPython.Modules;
@@ -10,7 +11,7 @@ namespace MicroservicesAPI.Python.Services;
 
 public class PythonService
 {
-    public async Task<ResultResponseDto> ProcessUsersCode(SubmittedCodeDto submittedCodeDto)
+    public async Task<ResultResponseDto> ProcessUsersCode(SubmittedSolutionDto submittedSolutionDto)
     {
         ScriptEngine engine = IronPython.Hosting.Python.CreateEngine();
 
@@ -19,22 +20,20 @@ public class PythonService
             // Run execution on a separate thread 
             var executeCodeTask = Task.Run(() => 
             {
-                engine.Execute(submittedCodeDto.UsersCode);
-            });
-            
-            Console.WriteLine(submittedCodeDto.TimeLimitSeconds);
+                engine.Execute(submittedSolutionDto.UsersCode);
+            }); 
 
             // Main thread waiting for either one to finish
             if (await Task.WhenAny(executeCodeTask, 
-                    Task.Delay(submittedCodeDto.TimeLimitSeconds*1000)) == executeCodeTask)
+                    Task.Delay(submittedSolutionDto.TimeLimitSeconds*1000)) == executeCodeTask)
             {
                 // Awaiting the Task to re-throw exceptions from within the Task
                 // The task is not run again
                 await executeCodeTask;
             }
-            else
-            {
-                // TODO kill the process gracefully after it exceeded allotted time
+            else 
+            { 
+                // TODO exit the process after it exceeded allotted time (Cancellation Token)
                 throw new TimeoutException();
             }
         }
