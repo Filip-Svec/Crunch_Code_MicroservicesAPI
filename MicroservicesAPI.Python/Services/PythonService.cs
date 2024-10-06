@@ -21,7 +21,7 @@ public class PythonService
         writer.AutoFlush = true; // Writer auto flushes its buffer after each write operation
         engine.Runtime.IO.SetOutput(outputStream, writer); // send any output to the MS via the SW instead of stdout
 
-        string result;
+        string result = "";
 
         try
         {
@@ -31,7 +31,7 @@ public class PythonService
                 submittedSolutionDto.TestingData,
                 submittedSolutionDto.ExpectedResult
             );
-            Console.WriteLine(driverCode);
+           
             // Run execution on a separate thread 
             var executeCodeTask = Task.Run(() => { engine.Execute(driverCode, scope); });
 
@@ -85,6 +85,16 @@ public class PythonService
         {
             Console.WriteLine($"Execution error: {ex.Message}");
             Console.WriteLine($"Execution error: {ex.GetType()}");
+            
+            if (ex.Message.Contains("TypeMismatch"))
+            {
+                return new ResultResponseDto(ResultState.TypeMismatch, ex.Message, result);
+            }
+            if (ex.Message.Contains("ValueMismatch"))
+            {
+                return new ResultResponseDto(ResultState.ValueMismatch, ex.Message, result);
+            }
+            
             return new ResultResponseDto(ResultState.Other, ex.Message, "");
         }
 
@@ -99,6 +109,22 @@ public class PythonService
     {
         //string formattedArguments = string.Join(", ", testDatasets.Select(arg => $"\"{arg}\""));
 
+        string expectedType = expectedResult.ValueType switch
+        {
+            "int" => "int",
+            "str" => "str",
+            "float" => "float",
+            "bool" => "bool",
+            _ => "object"       // default unknown types
+        };
+        
+        string expectedValue = expectedResult.ValueType switch
+        {
+            "int" or "float" or "bool" => expectedResult.Value,  // remains the same
+            "str" => $"\"{expectedResult.Value}\"",  // strings wrap in double quotes
+            _ => expectedResult.Value   // default 
+        };
+        
         string driverCode = $@"
 __name__ = '__main__'  # explicitly set name variable
 
@@ -107,6 +133,16 @@ __name__ = '__main__'  # explicitly set name variable
 if __name__ == '__main__':
     solution = Solution()
     result = solution.{methodName}()
+
+    # Check for result type
+    if type(result) != {expectedType}:
+        print(result)
+        raise Exception(""TypeMismatch"")
+
+    # Check for result value
+    if result != {expectedValue}:
+        print(result)
+        raise Exception(""ValueMismatch"")
 
     print(result)
 

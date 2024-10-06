@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("MicroservicesAPI.Python")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+dd3a5f4d190e6ed10691959d64b452caebf1fb83")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b73cfb6cb4602767fa4b8b3cd39b4a937953b2a0")]
 [assembly: System.Reflection.AssemblyProductAttribute("MicroservicesAPI.Python")]
 [assembly: System.Reflection.AssemblyTitleAttribute("MicroservicesAPI.Python")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
