@@ -10,6 +10,7 @@ public enum ResultState
     
     // Execution fail, no result
     SyntaxError,
+    ArgumentType,
     DivideByZero,
     UnboundName,
     TimeLimitExceeded,
