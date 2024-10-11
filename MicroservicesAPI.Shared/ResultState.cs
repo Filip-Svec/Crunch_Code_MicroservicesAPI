@@ -4,7 +4,6 @@ public enum ResultState
 {
     // Execution fine, result produced
     Success,
-    OutputLengthExceeded,
     TypeMismatch,
     ValueMismatch,
     

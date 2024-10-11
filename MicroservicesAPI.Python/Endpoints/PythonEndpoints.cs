@@ -26,7 +26,7 @@ public static class PythonEndpoints
         
         if (resultResponseDto.ResultState is 
             ResultState.Success or ResultState.ValueMismatch or 
-            ResultState.TypeMismatch or ResultState.OutputLengthExceeded) 
+            ResultState.TypeMismatch) 
         {
             return TypedResults.Ok(resultResponseDto);
         }

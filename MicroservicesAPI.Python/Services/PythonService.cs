@@ -4,6 +4,7 @@ using MicroservicesAPI.Shared;
 using IronPython.Hosting;
 using IronPython.Modules;
 using MicroservicesAPI.Shared.DTOs;
+using MicroservicesAPI.Shared.Exceptions;
 using Microsoft.Scripting.Hosting;
 using Microsoft.AspNetCore.Http.HttpResults;
 
@@ -31,7 +32,7 @@ public class PythonService
                 submittedSolutionDto.TestingData,
                 submittedSolutionDto.ExpectedResult
             );
-           
+
             // Run execution on a separate thread 
             var executeCodeTask = Task.Run(() => { engine.Execute(driverCode, scope); });
 
@@ -81,19 +82,20 @@ public class PythonService
             Console.WriteLine($"Execution error: {ex.Message}");
             return new ResultResponseDto(ResultState.OutOfMemory, ex.Message, "");
         }
+        catch (TypeMismatchException ex)
+        {
+            return new ResultResponseDto(ResultState.TypeMismatch, ex.Message, "");
+        }
+        catch (ValueMismatchException ex)
+        {
+            outputStream.Seek(0, SeekOrigin.Begin);
+            result = new StreamReader(outputStream).ReadToEnd().Trim();
+            return new ResultResponseDto(ResultState.ValueMismatch, ex.Message, result);
+        }
         catch (Exception ex)
         {
             Console.WriteLine($"Execution error: {ex.Message}");
             Console.WriteLine($"Execution error: {ex.GetType()}");
-            
-            if (ex.Message.Contains("TypeMismatch"))
-            {
-                return new ResultResponseDto(ResultState.TypeMismatch, ex.Message, result);
-            }
-            if (ex.Message.Contains("ValueMismatch"))
-            {
-                return new ResultResponseDto(ResultState.ValueMismatch, ex.Message, result);
-            }
             
             return new ResultResponseDto(ResultState.Other, ex.Message, "");
         }
@@ -111,10 +113,7 @@ public class PythonService
 
         string expectedType = expectedResult.ValueType switch
         {
-            "int" => "int",
-            "str" => "str",
-            "float" => "float",
-            "bool" => "bool",
+            "int" => "int", "str" => "str", "float" => "float", "bool" => "bool", 
             _ => "object"       // default unknown types
         };
         
@@ -126,6 +125,11 @@ public class PythonService
         };
         
         string driverCode = $@"
+import clr
+clr.AddReference('MicroservicesAPI.Shared')  # Reference to C# assembly where exceptions are defined
+from MicroservicesAPI.Shared.Exceptions import TypeMismatchException, ValueMismatchException 
+
+
 __name__ = '__main__'  # explicitly set name variable
 
 {usersCode} # every method defined in a class needs to have the argument *self*
@@ -136,16 +140,14 @@ if __name__ == '__main__':
 
     # Check for result type
     if type(result) != {expectedType}:
-        print(result)
-        raise Exception(""TypeMismatch"")
+         raise TypeMismatchException(f'Result: {{type(result)}}, Expected: {expectedType}')
 
     # Check for result value
     if result != {expectedValue}:
-        print(result)
-        raise Exception(""ValueMismatch"")
+        print(result, flush=True)
+        raise ValueMismatchException(""Result does not match the Expected result"")
 
     print(result)
-
 ";
 
         //result = solution.{methodName}({formattedArguments})
