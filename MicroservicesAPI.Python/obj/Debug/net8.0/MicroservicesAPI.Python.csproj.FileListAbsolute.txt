@@ -701,3 +701,4 @@ C:\Users\Asus\FEI\Diplomka\Codes\DP_microservices\MicroservicesAPI\Microservices
 C:\Users\Asus\FEI\Diplomka\Codes\DP_microservices\MicroservicesAPI\MicroservicesAPI.Python\bin\Debug\net8.0\runtimes\osx-x64\native\libMono.Unix.dylib
 C:\Users\Asus\FEI\Diplomka\Codes\DP_microservices\MicroservicesAPI\MicroservicesAPI.Python\bin\Debug\net8.0\runtimes\tvos-arm64\native\libMono.Unix.a
 C:\Users\Asus\FEI\Diplomka\Codes\DP_microservices\MicroservicesAPI\MicroservicesAPI.Python\bin\Debug\net8.0\runtimes\tvossimulator-x64\native\libMono.Unix.a
+C:\Users\Asus\FEI\Diplomka\Codes\DP_microservices\MicroservicesAPI\MicroservicesAPI.Python\bin\Debug\net8.0\Newtonsoft.Json.dll

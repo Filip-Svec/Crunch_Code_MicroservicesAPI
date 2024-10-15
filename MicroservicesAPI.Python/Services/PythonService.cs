@@ -8,6 +8,7 @@ using MicroservicesAPI.Shared.Exceptions;
 using Microsoft.Scripting.Hosting;
 using Microsoft.AspNetCore.Http.HttpResults;
 
+
 namespace MicroservicesAPI.Python.Services;
 
 public class PythonService
@@ -113,22 +114,19 @@ public class PythonService
 
         string expectedType = expectedResult.ValueType switch
         {
-            "int" => "int", "str" => "str", "float" => "float", "bool" => "bool", 
+            "int" => "int", "str" => "str", "float" => "float", "bool" => "bool", "list" => "list",
             _ => "object"       // default unknown types
         };
-        
-        string expectedValue = expectedResult.ValueType switch
+        string expectedListType = expectedResult.ListType switch
         {
-            "int" or "float" or "bool" => expectedResult.Value,  // remains the same
-            "str" => $"\"{expectedResult.Value}\"",  // strings wrap in double quotes
-            _ => expectedResult.Value   // default 
+            "int" => "int", "str" => "str", "float" => "float", "bool" => "bool", "list" => "list",
+            _ => "object"       // default unknown types
         };
         
         string driverCode = $@"
 import clr
 clr.AddReference('MicroservicesAPI.Shared')  # Reference to C# assembly where exceptions are defined
 from MicroservicesAPI.Shared.Exceptions import TypeMismatchException, ValueMismatchException 
-
 
 __name__ = '__main__'  # explicitly set name variable
 
@@ -138,12 +136,19 @@ if __name__ == '__main__':
     solution = Solution()
     result = solution.{methodName}()
 
-    # Check for result type
+    # Check result type
     if type(result) != {expectedType}:
          raise TypeMismatchException(f'Result: {{type(result)}}, Expected: {expectedType}')
 
-    # Check for result value
-    if result != {expectedValue}:
+    # If list, check type of first element
+    if isinstance(result, list):
+        if len(result) > 0:
+            if type(result[0]) != {expectedListType}:
+                raise TypeMismatchException(f'List element type: {{type(result[0])}}, Expected: {expectedListType}')
+        
+
+    # Check result value
+    if result != {expectedResult.Value}:
         print(result, flush=True)
         raise ValueMismatchException(""Result does not match the Expected result"")
 

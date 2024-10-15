@@ -4,8 +4,11 @@ namespace MicroservicesAPI.Shared.DTOs;
 
 public class ExpectedResultDto
 {
-    [JsonPropertyName("ValueType")]
+    [JsonPropertyName("ValueType")] 
     public string ValueType { get; set; }
+
+    [JsonPropertyName("ListType")] 
+    public string ListType { get; set; }
     
     [JsonPropertyName("Value")]
     public string Value { get; set; }
