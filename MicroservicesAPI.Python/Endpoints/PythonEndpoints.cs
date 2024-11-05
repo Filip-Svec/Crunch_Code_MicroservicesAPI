@@ -34,7 +34,6 @@ public static class PythonEndpoints
         {
             return TypedResults.UnprocessableEntity(resultResponseDto);
         }
-        
     }
     
     public static async Task<IResult> GetTestString()

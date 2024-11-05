@@ -11,7 +11,10 @@ public class SubmittedSolutionDto
     public string MethodName { get; set; }
     
     [JsonPropertyName("TestingData")]
-    public List<object> TestingData { get; set; } 
+    public List<List<object>> TestingData { get; set; } 
+    
+    [JsonPropertyName("TestingDataTypes")]
+    public List<string> TestingDataTypes { get; set; } 
     
     [JsonPropertyName("TimeLimitSeconds")]
     public int TimeLimitSeconds { get; set; }

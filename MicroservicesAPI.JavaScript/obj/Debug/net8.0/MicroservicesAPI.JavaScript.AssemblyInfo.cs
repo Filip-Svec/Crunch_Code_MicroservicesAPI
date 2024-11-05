@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("MicroservicesAPI.JavaScript")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d7983f8dfbd3feb84c441487f3a488893ce31a9d")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+fb5cd36241892c517abc5e831cb7955acd6dce71")]
 [assembly: System.Reflection.AssemblyProductAttribute("MicroservicesAPI.JavaScript")]
 [assembly: System.Reflection.AssemblyTitleAttribute("MicroservicesAPI.JavaScript")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

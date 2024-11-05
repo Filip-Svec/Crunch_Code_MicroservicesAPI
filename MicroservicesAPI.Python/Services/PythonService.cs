@@ -31,6 +31,7 @@ public class PythonService
                 submittedSolutionDto.UsersCode,
                 submittedSolutionDto.MethodName,
                 submittedSolutionDto.TestingData,
+                submittedSolutionDto.TestingDataTypes,
                 submittedSolutionDto.ExpectedResult
             );
 
@@ -38,8 +39,7 @@ public class PythonService
             var executeCodeTask = Task.Run(() => { engine.Execute(driverCode, scope); });
 
             // Main thread waiting for either one to finish
-            if (await Task.WhenAny(executeCodeTask,
-                    Task.Delay(submittedSolutionDto.TimeLimitSeconds * 1000)) == executeCodeTask)
+            if (await Task.WhenAny(executeCodeTask, Task.Delay(submittedSolutionDto.TimeLimitSeconds * 1000)) == executeCodeTask)
             {
                 await executeCodeTask; // Awaiting the Task to re-throw exceptions from within
             }
@@ -101,27 +101,33 @@ public class PythonService
             return new ResultResponseDto(ResultState.Other, ex.Message, "");
         }
 
-        // TODO Compare type of result (or if null)
-
-        // TODO compare result itself
-
         return new ResultResponseDto(ResultState.Success, "this is fine", result);
     }
-
-    private string DriverCodeGenerator(string usersCode, string methodName, List<object> testDatasets, ExpectedResultDto expectedResult)
+    // serilog, seq
+    private string DriverCodeGenerator(string usersCode, string methodName, List<List<object>> testDatasets, List<string> testingDataTypes, ExpectedResultDto expectedResult)
     {
-        //string formattedArguments = string.Join(", ", testDatasets.Select(arg => $"\"{arg}\""));
-
         string expectedType = expectedResult.ValueType switch
         {
             "int" => "int", "str" => "str", "float" => "float", "bool" => "bool", "list" => "list",
-            _ => "object"       // default unknown types
+            _ => "object"       // default
         };
         string expectedListType = expectedResult.ListType switch
         {
             "int" => "int", "str" => "str", "float" => "float", "bool" => "bool", "list" => "list",
-            _ => "object"       // default unknown types
+            _ => "object"       // default
         };
+        
+        // Format arguments 
+        string formattedArguments = string.Join(", ", testDatasets[0].Zip(testingDataTypes, (arg, type) =>
+        {
+            return type switch
+            {
+                "int" or "float" or "bool" => arg.ToString(),    
+                "str" => $"\"{arg}\"",                          // Strings wrap in quotes (or send with '' -> "'string'")
+                // TODO lists
+                _ => throw new NotSupportedException($"Unsupported argument type: {type}")
+            };
+        }));
         
         string driverCode = $@"
 import clr
@@ -134,7 +140,10 @@ __name__ = '__main__'  # explicitly set name variable
 
 if __name__ == '__main__':
     solution = Solution()
-    result = solution.{methodName}()
+
+    # for-cycle
+
+    result = solution.{methodName}({formattedArguments})
 
     # Check result type
     if type(result) != {expectedType}:
@@ -146,7 +155,6 @@ if __name__ == '__main__':
             if type(result[0]) != {expectedListType}:
                 raise TypeMismatchException(f'List element type: {{type(result[0])}}, Expected: {expectedListType}')
         
-
     # Check result value
     if result != {expectedResult.Value}:
         print(result, flush=True)
@@ -154,8 +162,25 @@ if __name__ == '__main__':
 
     print(result)
 ";
-
-        //result = solution.{methodName}({formattedArguments})
+        
         return driverCode;
     }
+    
+    
+    
+    
+    // private string FormatList(List<object> list)
+    // {
+    //     // This method will recursively format lists. You can extend it as needed.
+    //     return "[" + string.Join(", ", list.Select(item =>
+    //     {
+    //         return item switch
+    //         {
+    //             int or float or bool => item.ToString(),
+    //             string str => $"\"{str}\"",         // Wrap strings in quotes
+    //             List<object> nestedList => FormatList(nestedList),  // Recursive call for nested lists
+    //             _ => throw new NotSupportedException("Unsupported list element type")
+    //         };
+    //     })) + "]";
+    // }
 }
