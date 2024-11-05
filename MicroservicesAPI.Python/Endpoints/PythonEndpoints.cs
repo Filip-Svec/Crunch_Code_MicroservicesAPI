@@ -25,15 +25,13 @@ public static class PythonEndpoints
         ResultResponseDto resultResponseDto = await pythonService.ProcessUsersCode(submittedSolution);
         
         if (resultResponseDto.ResultState is 
-            ResultState.Success or ResultState.ValueMismatch or 
-            ResultState.TypeMismatch) 
+            "Success" or "ValueMismatchException" or 
+            "TypeMismatchException") 
         {
             return TypedResults.Ok(resultResponseDto);
         }
-        else
-        {
-            return TypedResults.UnprocessableEntity(resultResponseDto);
-        }
+        return TypedResults.UnprocessableEntity(resultResponseDto);
+        
     }
     
     public static async Task<IResult> GetTestString()

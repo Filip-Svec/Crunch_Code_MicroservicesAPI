@@ -2,11 +2,10 @@
 
 namespace MicroservicesAPI.Shared.DTOs;
 
-public class ResultResponseDto(ResultState resultState, String debugMessage, String? result)
+public class ResultResponseDto(String resultState, String debugMessage, String? result)
 {
-    [JsonConverter(typeof(JsonStringEnumConverter))]
-    [JsonPropertyName("ErrorType")]
-    public ResultState ResultState { get; set; } = resultState;
+    [JsonPropertyName("ResultState")]
+    public String ResultState { get; set; } = resultState;
 
     [JsonPropertyName("DebugMessage")]
     public String DebugMessage { get; set; } = debugMessage;

@@ -41,7 +41,7 @@ public class PythonService
             // Main thread waiting for either one to finish
             if (await Task.WhenAny(executeCodeTask, Task.Delay(submittedSolutionDto.TimeLimitSeconds * 1000)) == executeCodeTask)
             {
-                await executeCodeTask; // Awaiting the Task to re-throw exceptions from within
+                await executeCodeTask; // Awaiting the Task to re-throw exceptions onto the main thread
             }
             else
             {
@@ -53,56 +53,35 @@ public class PythonService
             outputStream.Seek(0, SeekOrigin.Begin);
             result = new StreamReader(outputStream).ReadToEnd().Trim();
         }
-        catch (Microsoft.Scripting.SyntaxErrorException ex)
-        {
-            Console.WriteLine($"Execution error: {ex.Message}");
-            return new ResultResponseDto(ResultState.SyntaxError, ex.Message, "");
-        }
-        catch (DivideByZeroException ex)
-        {
-            Console.WriteLine($"Execution error: {ex.Message}");
-            return new ResultResponseDto(ResultState.DivideByZero, ex.Message, "");
-        }
-        catch (Microsoft.Scripting.ArgumentTypeException ex)
-        {
-            Console.WriteLine($"Execution error: {ex.Message}");
-            return new ResultResponseDto(ResultState.ArgumentType, ex.Message, "");
-        }
-        catch (IronPython.Runtime.UnboundNameException ex)
-        {
-            Console.WriteLine($"Execution error: {ex.Message}");
-            return new ResultResponseDto(ResultState.UnboundName, ex.Message, "");
-        }
-        catch (TimeoutException ex)
-        {
-            Console.WriteLine($"Execution error: {ex.Message}");
-            return new ResultResponseDto(ResultState.TimeLimitExceeded, ex.Message, "");
-        }
-        catch (OutOfMemoryException ex)
-        {
-            Console.WriteLine($"Execution error: {ex.Message}");
-            return new ResultResponseDto(ResultState.OutOfMemory, ex.Message, "");
-        }
         catch (TypeMismatchException ex)
         {
-            return new ResultResponseDto(ResultState.TypeMismatch, ex.Message, "");
+            return new ResultResponseDto(GetExceptionTypeName(ex), ex.Message, "");
         }
         catch (ValueMismatchException ex)
         {
             outputStream.Seek(0, SeekOrigin.Begin);
             result = new StreamReader(outputStream).ReadToEnd().Trim();
-            return new ResultResponseDto(ResultState.ValueMismatch, ex.Message, result);
+            return new ResultResponseDto(GetExceptionTypeName(ex), ex.Message, result);
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Execution error: {ex.Message}");
             Console.WriteLine($"Execution error: {ex.GetType()}");
             
-            return new ResultResponseDto(ResultState.Other, ex.Message, "");
+            return new ResultResponseDto(GetExceptionTypeName(ex), ex.Message, "");
         }
 
-        return new ResultResponseDto(ResultState.Success, "this is fine", result);
+        return new ResultResponseDto("Success", "this is fine", result);
     }
+    
+    private string GetExceptionTypeName(Exception ex)
+    {
+        string fullName = ex.GetType().ToString();
+        int lastDotIndex = fullName.LastIndexOf('.');   // -1 if no dot
+        // If no dot, return fullname; else, return substring after last dot
+        return lastDotIndex == -1 ? fullName : fullName.Substring(lastDotIndex + 1);
+    }
+    
     // serilog, seq
     private string DriverCodeGenerator(string usersCode, string methodName, List<List<object>> testDatasets, List<string> testingDataTypes, ExpectedResultDto expectedResult)
     {
