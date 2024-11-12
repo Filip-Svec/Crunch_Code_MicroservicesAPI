@@ -10,3 +10,4 @@ C:\Users\Asus\FEI\Diplomka\Codes\DP_microservices\MicroservicesAPI\Microservices
 C:\Users\Asus\FEI\Diplomka\Codes\DP_microservices\MicroservicesAPI\MicroservicesAPI.Shared\obj\Debug\net8.0\refint\MicroservicesAPI.Shared.dll
 C:\Users\Asus\FEI\Diplomka\Codes\DP_microservices\MicroservicesAPI\MicroservicesAPI.Shared\obj\Debug\net8.0\MicroservicesAPI.Shared.pdb
 C:\Users\Asus\FEI\Diplomka\Codes\DP_microservices\MicroservicesAPI\MicroservicesAPI.Shared\obj\Debug\net8.0\ref\MicroservicesAPI.Shared.dll
+C:\Users\Asus\FEI\Diplomka\Codes\DP_microservices\MicroservicesAPI\MicroservicesAPI.Shared\obj\Debug\net8.0\MicroservicesAPI.Shared.csproj.AssemblyReference.cache

@@ -11,6 +11,7 @@ public class ExpectedResultDto
     public string ListType { get; set; }
     
     [JsonPropertyName("Value")]
-    public string Value { get; set; }
+    // CHANGE from string to OBJECT
+    public object Value { get; set; }
     
 }

@@ -34,3 +34,4 @@ C:\Users\Asus\FEI\Diplomka\Codes\DP_microservices\MicroservicesAPI\Microservices
 C:\Users\Asus\FEI\Diplomka\Codes\DP_microservices\MicroservicesAPI\MicroservicesAPI.JavaScript\obj\Debug\net8.0\ref\MicroservicesAPI.JavaScript.dll
 C:\Users\Asus\FEI\Diplomka\Codes\DP_microservices\MicroservicesAPI\MicroservicesAPI.JavaScript\bin\Debug\net8.0\MicroservicesAPI.Shared.dll
 C:\Users\Asus\FEI\Diplomka\Codes\DP_microservices\MicroservicesAPI\MicroservicesAPI.JavaScript\bin\Debug\net8.0\MicroservicesAPI.Shared.pdb
+C:\Users\Asus\FEI\Diplomka\Codes\DP_microservices\MicroservicesAPI\MicroservicesAPI.JavaScript\bin\Debug\net8.0\Newtonsoft.Json.dll

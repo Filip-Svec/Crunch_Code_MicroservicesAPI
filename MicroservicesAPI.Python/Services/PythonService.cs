@@ -35,12 +35,19 @@ public class PythonService
                 submittedSolutionDto.ExpectedResult
             );
 
+            // TODO: START time counter
             // Run execution on a separate thread 
-            var executeCodeTask = Task.Run(() => { engine.Execute(driverCode, scope); });
+            var executeCodeTask = Task.Run(() =>
+            {
+                Console.WriteLine("start");
+                engine.Execute(driverCode, scope);
+                Console.WriteLine("end");
+            });
 
             // Main thread waiting for either one to finish
             if (await Task.WhenAny(executeCodeTask, Task.Delay(submittedSolutionDto.TimeLimitSeconds * 1000)) == executeCodeTask)
             {
+                // TODO: END time counter
                 await executeCodeTask; // Awaiting the Task to re-throw exceptions onto the main thread
             }
             else
@@ -65,12 +72,8 @@ public class PythonService
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Execution error: {ex.Message}");
-            Console.WriteLine($"Execution error: {ex.GetType()}");
-            
             return new ResultResponseDto(GetExceptionTypeName(ex), ex.Message, "");
         }
-
         return new ResultResponseDto("Success", "this is fine", result);
     }
     
@@ -102,8 +105,8 @@ public class PythonService
             return type switch
             {
                 "int" or "float" or "bool" => arg.ToString(),    
-                "str" => $"\"{arg}\"",                          // Strings wrap in quotes (or send with '' -> "'string'")
-                // TODO lists
+                "str" => $"\"{arg}\"",
+                // "list" => FormatList((List<object>)arg),
                 _ => throw new NotSupportedException($"Unsupported argument type: {type}")
             };
         }));
@@ -144,10 +147,7 @@ if __name__ == '__main__':
         
         return driverCode;
     }
-    
-    
-    
-    
+
     // private string FormatList(List<object> list)
     // {
     //     // This method will recursively format lists. You can extend it as needed.

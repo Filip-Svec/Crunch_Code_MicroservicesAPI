@@ -1,5 +1,4 @@
 ﻿using MicroservicesAPI.Python.Services;
-using MicroservicesAPI.Shared;
 using MicroservicesAPI.Shared.DTOs;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
