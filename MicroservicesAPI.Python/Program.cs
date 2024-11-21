@@ -1,5 +1,9 @@
 using MicroservicesAPI.Python.Endpoints;
 using MicroservicesAPI.Python.Services;
+using MicroservicesAPI.Shared;
+using MicroservicesAPI.Shared.Repository;
+using MicroservicesAPI.Shared.Repository.Interfaces;
+using MicroservicesAPI.Shared.Settings;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,6 +12,9 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<PythonService>();
+builder.Services.Configure<MongoDbSettings>(builder.Configuration.GetSection("MongoDbSettings"));
+builder.Services.AddSingleton<MongoDbContext>();
+builder.Services.AddSingleton(typeof(IRepository<>), typeof(MongoRepository<>));
 
 var app = builder.Build();
 

@@ -47,6 +47,10 @@
               "target": "Package",
               "version": "[8.0.6, )"
             },
+            "MongoDB.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[8.2.0, )"
+            },
             "Ocelot": {
               "target": "Package",
               "version": "[23.3.3, )"
