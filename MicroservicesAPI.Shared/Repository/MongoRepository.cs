@@ -6,14 +6,11 @@ using MongoDB.Bson;
 
 namespace MicroservicesAPI.Shared.Repository;
 
-public class MongoRepository<T>(
-        IMongoClient mongoClient, 
-        IMongoDatabase mongoDb, 
-        string collectionName) : IRepository<T> where T : BaseEntity
+public class MongoRepository<T>(IMongoCollection<T> dbCollection) : IRepository<T> where T : BaseEntity
 {
-    private readonly IMongoCollection<T> _dbCollection = mongoDb.GetCollection<T>(collectionName);
-    private readonly FilterDefinitionBuilder<T> _filterBuilder = Builders<T>.Filter;
-    
+    protected readonly IMongoCollection<T> _dbCollection = dbCollection;
+    protected readonly FilterDefinitionBuilder<T> _filterBuilder = Builders<T>.Filter;
+
     public async Task<T> GetByIdAsync(string id)
     {
         var objectId = ObjectId.Parse(id); // Convert string to ObjectId

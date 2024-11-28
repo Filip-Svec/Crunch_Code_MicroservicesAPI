@@ -711,3 +711,12 @@ C:\Users\Asus\FEI\Diplomka\Codes\DP_microservices\MicroservicesAPI\Microservices
 C:\Users\Asus\FEI\Diplomka\Codes\DP_microservices\MicroservicesAPI\MicroservicesAPI.Python\bin\Debug\net8.0\SharpCompress.dll
 C:\Users\Asus\FEI\Diplomka\Codes\DP_microservices\MicroservicesAPI\MicroservicesAPI.Python\bin\Debug\net8.0\Snappier.dll
 C:\Users\Asus\FEI\Diplomka\Codes\DP_microservices\MicroservicesAPI\MicroservicesAPI.Python\bin\Debug\net8.0\ZstdSharp.dll
+C:\Users\Asus\FEI\Diplomka\Codes\DP_microservices\MicroservicesAPI\MicroservicesAPI.Python\bin\Debug\net8.0\Microsoft.EntityFrameworkCore.dll
+C:\Users\Asus\FEI\Diplomka\Codes\DP_microservices\MicroservicesAPI\MicroservicesAPI.Python\bin\Debug\net8.0\Microsoft.EntityFrameworkCore.Abstractions.dll
+C:\Users\Asus\FEI\Diplomka\Codes\DP_microservices\MicroservicesAPI\MicroservicesAPI.Python\bin\Debug\net8.0\Microsoft.Extensions.Caching.Memory.dll
+C:\Users\Asus\FEI\Diplomka\Codes\DP_microservices\MicroservicesAPI\MicroservicesAPI.Python\bin\Debug\net8.0\Microsoft.Extensions.DependencyInjection.dll
+C:\Users\Asus\FEI\Diplomka\Codes\DP_microservices\MicroservicesAPI\MicroservicesAPI.Python\bin\Debug\net8.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll
+C:\Users\Asus\FEI\Diplomka\Codes\DP_microservices\MicroservicesAPI\MicroservicesAPI.Python\bin\Debug\net8.0\Microsoft.Extensions.Logging.dll
+C:\Users\Asus\FEI\Diplomka\Codes\DP_microservices\MicroservicesAPI\MicroservicesAPI.Python\bin\Debug\net8.0\Microsoft.Extensions.Logging.Abstractions.dll
+C:\Users\Asus\FEI\Diplomka\Codes\DP_microservices\MicroservicesAPI\MicroservicesAPI.Python\bin\Debug\net8.0\Microsoft.Extensions.Options.dll
+C:\Users\Asus\FEI\Diplomka\Codes\DP_microservices\MicroservicesAPI\MicroservicesAPI.Python\bin\Debug\net8.0\MongoDB.EntityFrameworkCore.dll

@@ -1,20 +1,20 @@
-﻿using System.Data;
-using System.Runtime.InteropServices;
-using MicroservicesAPI.Shared;
-using IronPython.Hosting;
-using IronPython.Modules;
-using MicroservicesAPI.Shared.DTOs;
+﻿using MicroservicesAPI.Shared.DTOs;
+using MicroservicesAPI.Shared.Entities;
 using MicroservicesAPI.Shared.Exceptions;
+using MicroservicesAPI.Shared.Repository;
 using Microsoft.Scripting.Hosting;
-using Microsoft.AspNetCore.Http.HttpResults;
 
 
 namespace MicroservicesAPI.Python.Services;
 
-public class PythonService
+public class PythonService(TestingDataRepository testingDataRepo)
 {
     public async Task<ResultResponseDto> ProcessUsersCode(SubmittedSolutionDto submittedSolutionDto)
     {
+        Console.WriteLine("1");
+        TestingData testingData = await testingDataRepo.GetTestingDataByTaskIdAsync(submittedSolutionDto.TaskId)  // ?? --> null check
+                          ?? throw new Exception($"Testing data for Task Id: {submittedSolutionDto.TaskId}, not found");
+        Console.WriteLine("2");
         ScriptEngine engine = IronPython.Hosting.Python.CreateEngine();
         var scope = engine.CreateScope(); // Isolating an execution of python code namespacewise
 
@@ -29,10 +29,7 @@ public class PythonService
         {
             string driverCode = DriverCodeGenerator(
                 submittedSolutionDto.UsersCode,
-                submittedSolutionDto.MethodName,
-                submittedSolutionDto.TestingData,
-                submittedSolutionDto.TestingDataTypes,
-                submittedSolutionDto.ExpectedResult
+                testingData
             );
 
             // TODO: START time counter
@@ -45,7 +42,7 @@ public class PythonService
             });
 
             // Main thread waiting for either one to finish
-            if (await Task.WhenAny(executeCodeTask, Task.Delay(submittedSolutionDto.TimeLimitSeconds * 1000)) == executeCodeTask)
+            if (await Task.WhenAny(executeCodeTask, Task.Delay(7 * 1000)) == executeCodeTask)
             {
                 // TODO: END time counter
                 await executeCodeTask; // Awaiting the Task to re-throw exceptions onto the main thread
@@ -85,69 +82,92 @@ public class PythonService
         return lastDotIndex == -1 ? fullName : fullName.Substring(lastDotIndex + 1);
     }
     
-    // serilog, seq
-    private string DriverCodeGenerator(string usersCode, string methodName, List<List<object>> testDatasets, List<string> testingDataTypes, ExpectedResultDto expectedResult)
+    private string FormatArgument(string type, string value)
     {
-        string expectedType = expectedResult.ValueType switch
+        return type switch
         {
-            "int" => "int", "str" => "str", "float" => "float", "bool" => "bool", "list" => "list",
-            _ => "object"       // default
+            "int" or "float" or "bool" or "list" => value, 
+            "str" => $"\"{value}\"", // Wrap strings in quotes
+            _ => throw new NotSupportedException($"Unsupported argument type: {type}")
         };
-        string expectedListType = expectedResult.ListType switch
+    }
+    
+    private string DriverCodeGenerator(string usersCode, TestingData testingData) 
+    {
+        // Prepare datasets in Python list format
+        string datasets = string.Join(", ", testingData.TaskDatasets.Select(dataset =>
         {
-            "int" => "int", "str" => "str", "float" => "float", "bool" => "bool", "list" => "list",
-            _ => "object"       // default
-        };
-        
-        // Format arguments 
-        string formattedArguments = string.Join(", ", testDatasets[0].Zip(testingDataTypes, (arg, type) =>
-        {
-            return type switch
+            string formattedArguments = string.Join(", ", dataset.Input.Select(input =>
+                FormatArgument(input.type, input.value)));
+
+            string expectedResultType = dataset.Output.type switch
             {
-                "int" or "float" or "bool" => arg.ToString(),    
-                "str" => $"\"{arg}\"",
-                // "list" => FormatList((List<object>)arg),
-                _ => throw new NotSupportedException($"Unsupported argument type: {type}")
+                "int" => "int",
+                "str" => "str",
+                "float" => "float",
+                "bool" => "bool",
+                "list" => "list",
+                _ => "object"
             };
+
+            string expectedResultValue = FormatArgument(dataset.Output.type, dataset.Output.value);
+
+            return $@"
+            {{
+                'arguments': [{formattedArguments}],
+                'expectedResult_type': {expectedResultType},
+                'expectedResult_value': {expectedResultValue}
+            }}";
         }));
-        
+
+        // Generate Python driver code
         string driverCode = $@"
 import clr
 clr.AddReference('MicroservicesAPI.Shared')  # Reference to C# assembly where exceptions are defined
-from MicroservicesAPI.Shared.Exceptions import TypeMismatchException, ValueMismatchException 
+from MicroservicesAPI.Shared.Exceptions import TypeMismatchException, ValueMismatchException
 
 __name__ = '__main__'  # explicitly set name variable
 
-{usersCode} # every method defined in a class needs to have the argument *self*
+{usersCode}  # User's Python code
 
 if __name__ == '__main__':
-    solution = Solution()
+    solution = Solution()  # Instantiate the solution class
 
-    # for-cycle
+    # List of test datasets
+    test_cases = [
+        {datasets}
+    ]
 
-    result = solution.{methodName}({formattedArguments})
+    for index, test_case in enumerate(test_cases):
+        arguments = test_case['arguments']
+        expectedResult_type = test_case['expectedResult_type']
+        expectedResult_value = test_case['expectedResult_value']
 
-    # Check result type
-    if type(result) != {expectedType}:
-         raise TypeMismatchException(f'Result: {{type(result)}}, Expected: {expectedType}')
+        # Execute the method with the given arguments
+        result = solution.{testingData.ExecutionMethodName}(*arguments)
 
-    # If list, check type of first element
-    if isinstance(result, list):
-        if len(result) > 0:
-            if type(result[0]) != {expectedListType}:
-                raise TypeMismatchException(f'List element type: {{type(result[0])}}, Expected: {expectedListType}')
-        
-    # Check result value
-    if result != {expectedResult.Value}:
-        print(result, flush=True)
-        raise ValueMismatchException(""Result does not match the Expected result"")
+        # Check result type
+        if type(result) != expectedResult_type:
+            raise TypeMismatchException(f'Test Case {{index}}: Result type {{type(result)}}, Expected {{expectedResult_type}}')
 
-    print(result)
+        # Check result value
+        if result != expectedResult_value:
+            raise ValueMismatchException(f'Test Case {{index}}: Result value {{result}}, Expected {{expectedResult_value}}')
+
+        print(f'Test Case {{index}} passed: {{result}}')
 ";
-        
         return driverCode;
     }
 
+    
+    
+// # If list, check type of first element
+//     if isinstance(result, list):
+//         if len(result) > 0:
+//         if type(result[0]) != {expectedListType}:
+//     raise TypeMismatchException(f'List element type: {{type(result[0])}}, Expected: {expectedListType}')
+
+    
     // private string FormatList(List<object> list)
     // {
     //     // This method will recursively format lists. You can extend it as needed.

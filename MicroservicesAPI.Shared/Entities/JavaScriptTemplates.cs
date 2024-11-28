@@ -3,9 +3,8 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace MicroservicesAPI.Shared.Entities;
 
-public class JavaScriptTemplates
+public class JavaScriptTemplates : BaseEntity
 {
-    [BsonId]
     [BsonRepresentation(BsonType.ObjectId)]
     public string TaskId { get; set; }
     public string Template { get; set; }

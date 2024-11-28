@@ -2,6 +2,6 @@
 
 public class Output
 {
-    public string Type { get; set; }
-    public string Value { get; set; }
+    public string type { get; set; }
+    public string value { get; set; }
 }

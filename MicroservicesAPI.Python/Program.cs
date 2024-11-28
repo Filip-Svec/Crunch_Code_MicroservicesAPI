@@ -4,6 +4,7 @@ using MicroservicesAPI.Shared;
 using MicroservicesAPI.Shared.Repository;
 using MicroservicesAPI.Shared.Repository.Interfaces;
 using MicroservicesAPI.Shared.Settings;
+using MongoDB.Driver;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,7 +16,17 @@ builder.Services.AddScoped<PythonService>();
 builder.Services.Configure<MongoDbSettings>(builder.Configuration.GetSection("MongoDbSettings"));
 builder.Services.AddSingleton<MongoDbContext>();
 builder.Services.AddSingleton(typeof(IRepository<>), typeof(MongoRepository<>));
-
+builder.Services.AddSingleton<IMongoDatabase>(sp =>
+{
+    var mongoClient = new MongoClient(builder.Configuration.GetConnectionString("MongoDb"));
+    var databaseName = builder.Configuration.GetSection("MongoDbSettings:DatabaseName").Value;
+    return mongoClient.GetDatabase(databaseName);
+});
+builder.Services.AddScoped<TestingDataRepository>(sp =>
+{
+    var mongoDbContext = sp.GetRequiredService<MongoDbContext>(); // Resolve the context
+    return new TestingDataRepository(mongoDbContext.TestingData); // Pass the TestingData collection
+});
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

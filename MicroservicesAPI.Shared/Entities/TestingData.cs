@@ -6,9 +6,8 @@ namespace MicroservicesAPI.Shared.Entities;
 
 public class TestingData : BaseEntity
 {
-    [BsonId]
     [BsonRepresentation(BsonType.ObjectId)]
     public string TaskId { get; set; }
-    public string ExecutionMethod { get; set; }
+    public string ExecutionMethodName { get; set; }
     public List<TaskDataset> TaskDatasets { get; set; }
 }
