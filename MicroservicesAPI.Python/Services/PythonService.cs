@@ -1,20 +1,17 @@
 ﻿using MicroservicesAPI.Shared.DTOs;
 using MicroservicesAPI.Shared.Entities;
 using MicroservicesAPI.Shared.Exceptions;
-using MicroservicesAPI.Shared.Repository;
 using Microsoft.Scripting.Hosting;
 
 
 namespace MicroservicesAPI.Python.Services;
 
-public class PythonService(TestingDataRepository testingDataRepo)
+public class PythonService()
 {
-    public async Task<ResultResponseDto> ProcessUsersCode(SubmittedSolutionDto submittedSolutionDto)
+    public async Task<ResultResponseDto> ProcessUsersCode(
+        SubmittedSolutionDto submittedSolutionDto, 
+        TestingData testingData)
     {
-        Console.WriteLine("1");
-        TestingData testingData = await testingDataRepo.GetTestingDataByTaskIdAsync(submittedSolutionDto.TaskId)  // ?? --> null check
-                          ?? throw new Exception($"Testing data for Task Id: {submittedSolutionDto.TaskId}, not found");
-        Console.WriteLine("2");
         ScriptEngine engine = IronPython.Hosting.Python.CreateEngine();
         var scope = engine.CreateScope(); // Isolating an execution of python code namespacewise
 
@@ -94,7 +91,6 @@ public class PythonService(TestingDataRepository testingDataRepo)
     
     private string DriverCodeGenerator(string usersCode, TestingData testingData) 
     {
-        // Prepare datasets in Python list format
         string datasets = string.Join(", ", testingData.TaskDatasets.Select(dataset =>
         {
             string formattedArguments = string.Join(", ", dataset.Input.Select(input =>
@@ -119,8 +115,7 @@ public class PythonService(TestingDataRepository testingDataRepo)
                 'expectedResult_value': {expectedResultValue}
             }}";
         }));
-
-        // Generate Python driver code
+        
         string driverCode = $@"
 import clr
 clr.AddReference('MicroservicesAPI.Shared')  # Reference to C# assembly where exceptions are defined
