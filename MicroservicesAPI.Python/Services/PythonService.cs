@@ -117,6 +117,7 @@ public class PythonService()
         }));
         
         string driverCode = $@"
+from typing import List     # to be able to use type hints with lists --> List[str]
 import clr
 clr.AddReference('MicroservicesAPI.Shared')  # Reference to C# assembly where exceptions are defined
 from MicroservicesAPI.Shared.Exceptions import TypeMismatchException, ValueMismatchException
