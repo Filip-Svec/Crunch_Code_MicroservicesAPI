@@ -12,7 +12,7 @@ public class TaskResponseDto
     [JsonPropertyName("Description")]
     public string Description { get; set; }
     [JsonPropertyName("Examples")]
-    public List<Example> Examples { get; set; }
+    public List<Examples> Examples { get; set; }
     [JsonPropertyName("Constraints")]
     public List<string> Constraints { get; set; }
     [JsonPropertyName("Hints")]

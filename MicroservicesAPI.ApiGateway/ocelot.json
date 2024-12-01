@@ -25,15 +25,15 @@
       "UpstreamHttpMethod": [ "POST" ]
     },
     {
-      "DownstreamPathTemplate": "/Code/JavaScript/get",
+      "DownstreamPathTemplate": "/Code/Task",
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 7199
+          "Port": 7288
         }
       ],
-      "UpstreamPathTemplate": "/Code/JavaScript/get",
+      "UpstreamPathTemplate": "/Code/Task",
       "UpstreamHttpMethod": [ "GET" ]
     }
   ]

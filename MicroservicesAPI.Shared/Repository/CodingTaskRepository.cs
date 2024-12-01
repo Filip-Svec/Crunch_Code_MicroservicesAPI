@@ -8,7 +8,7 @@ public class CodingTaskRepository(IMongoCollection<CodingTask> codingTaskCollect
 {
     public async Task<CodingTask> GetCodingTaskByNameAsync(string taskName)
     {
-        var filter = _filterBuilder.Eq(codingTask => codingTask.TaskName, taskName);
+        var filter = _filterBuilder.Eq(codingTask => codingTask.Name, taskName);
         return await _dbCollection.Find(filter).FirstOrDefaultAsync();
     }
 }

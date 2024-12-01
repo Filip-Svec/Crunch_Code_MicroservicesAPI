@@ -24,17 +24,38 @@ public static class TaskEndpoints
     {
         try
         {
-            CodingTask codingTask = await codingTaskRepo.GetCodingTaskByNameAsync(taskRequest.TaskName); 
-            PythonTemplates pythonTemplates = await pythonTemplateRepo.GetPythonTemplatesByTaskId(codingTask.Id.ToString()); 
-            JavaScriptTemplates javaScriptTemplates = await javaScriptTemplateRepo.GetJsTemplatesByTaskId(codingTask.Id.ToString());
-            TaskResponseDto taskResponseDto = null;//todo 
+            CodingTask codingTask = await codingTaskRepo.GetCodingTaskByNameAsync(taskRequest.TaskName)
+                                ?? throw new Exception($"Task: '{taskRequest.TaskName}' not found.");
+            PythonTemplates pythonTemplates = await pythonTemplateRepo.GetPythonTemplatesByTaskId(codingTask.Id)
+                                ?? throw new Exception($"Python Template with coding task Id: '{codingTask.Id.ToString()}' not found.");
+            JavaScriptTemplates javaScriptTemplates = await javaScriptTemplateRepo.GetJsTemplatesByTaskId(codingTask.Id) 
+                                ?? throw new Exception($"JavaScript Template with coding task Id: '{codingTask.Id.ToString()}' not found.");
+            TaskResponseDto taskResponseDto = TaskResponseBuilder(codingTask, pythonTemplates, javaScriptTemplates);
             return TypedResults.Ok(taskResponseDto);
         }
         catch (Exception ex)
         {
-            // --> error outside user's code, should be displayed to developer only
             return TypedResults.BadRequest(ex.ToString());
         }
+    }
+    
+    private static TaskResponseDto TaskResponseBuilder(CodingTask codingTask, PythonTemplates pythonTemplates, JavaScriptTemplates javaScriptTemplates)
+    {
+        return new TaskResponseDto
+        {
+            Id = codingTask.Id.ToString(),
+            TaskName = codingTask.Name,
+            Description = codingTask.Description,
+            Examples = codingTask.Examples, 
+            Constraints = codingTask.Constraints,
+            Hints = codingTask.Hints,
+            PythonTemplate = pythonTemplates.TemplateCode,
+            PythonSolution = pythonTemplates.SolutionCode,
+            PythonSolutionDesc = pythonTemplates.SolutionCodeDescription,
+            JavaScriptTemplate = javaScriptTemplates.TemplateCode,
+            JavaScriptSolution = javaScriptTemplates.SolutionCode,
+            JavaScriptSolutionDesc = javaScriptTemplates.SolutionCodeDescription
+        };
     }
     
 }

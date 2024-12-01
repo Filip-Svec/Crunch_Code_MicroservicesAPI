@@ -1,7 +1,7 @@
 ﻿namespace MicroservicesAPI.Shared.Entities.CodingTaskNested;
 
-public class Example
+public class Examples
 {
-    public List<string> Inputs { get; set; }
+    public List<string> Input { get; set; }
     public string Output { get; set; }
 }

@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "sH4/TbVpcNlZMStsleCNlbema9zMG65hJqc5pcCOlFI=",
+  "Source": "MicroservicesAPI.TaskProvider",
+  "BasePath": "_content/MicroservicesAPI.TaskProvider",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}
