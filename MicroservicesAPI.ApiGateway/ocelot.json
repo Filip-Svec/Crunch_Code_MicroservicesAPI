@@ -13,18 +13,6 @@
       "UpstreamHttpMethod": [ "POST" ]
     },
     {
-      "DownstreamPathTemplate": "/Code/Python/get",
-      "DownstreamScheme": "https",
-      "DownstreamHostAndPorts": [
-        {
-          "Host": "localhost",
-          "Port": 7184
-        }
-      ],
-      "UpstreamPathTemplate": "/Code/Python/get", 
-      "UpstreamHttpMethod": [ "GET" ]
-    },
-    {
       "DownstreamPathTemplate": "/Code/JavaScript",
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [

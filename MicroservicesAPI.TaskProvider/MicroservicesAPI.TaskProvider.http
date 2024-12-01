@@ -1,0 +1,6 @@
+@MicroservicesAPI.TaskProvider_HostAddress = http://localhost:5136
+
+GET {{MicroservicesAPI.TaskProvider_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

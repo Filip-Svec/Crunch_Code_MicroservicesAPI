@@ -15,9 +15,7 @@ public static class PythonEndpoints
         // "DownstreamPathTemplate": "/Code/Python/get" --> pattern from app.Map
         // "UpstreamPathTemplate": "/Code/Python/get", --> pattern to access endpoint from eg. postman
         app.MapPost("Code/Python", SubmitUsersCode);
-        app.MapGet("Code/Python/get", GetTestString);
     }
-
     
     private static async Task<Results<Ok<ResultResponseDto>, UnprocessableEntity<ResultResponseDto>, BadRequest<string>>> SubmitUsersCode(
         [FromBody] SubmittedSolutionDto submittedSolutionDto,
@@ -35,21 +33,12 @@ public static class PythonEndpoints
             {
                 return TypedResults.Ok(resultResponseDto);
             }
-            
             return TypedResults.UnprocessableEntity(resultResponseDto);
         }
         catch (Exception ex)
         {
-            // --> error outside user's control, should be displayed to developer only
+            // --> error outside user's code, should be displayed to developer only
             return TypedResults.BadRequest(ex.ToString());
         }
     }
-    
-        
-    public static async Task<IResult> GetTestString()
-    {
-        return  Results.Ok("Python String");
-    }
-    
-    
 }
