@@ -23,18 +23,18 @@ builder.Services.AddSingleton<IMongoDatabase>(sp =>
 
 builder.Services.AddScoped<CodingTaskRepository>(sp =>
 {
-    var mongoDbContext = sp.GetRequiredService<MongoDbContext>(); // Resolve the context
-    return new CodingTaskRepository(mongoDbContext.CodingTasks); // Pass the TestingData collection
+    var mongoDbContext = sp.GetRequiredService<MongoDbContext>(); 
+    return new CodingTaskRepository(mongoDbContext.CodingTasks); // pass the TestingData collection
 });
 builder.Services.AddScoped<PythonTemplateRepository>(sp =>
 {
-    var mongoDbContext = sp.GetRequiredService<MongoDbContext>(); // Resolve the context
-    return new PythonTemplateRepository(mongoDbContext.PythonTemplates); // Pass the TestingData collection
+    var mongoDbContext = sp.GetRequiredService<MongoDbContext>(); 
+    return new PythonTemplateRepository(mongoDbContext.PythonTemplates); // pass the TestingData collection
 });
 builder.Services.AddScoped<JavaScriptTemplateRepository>(sp =>
 {
-    var mongoDbContext = sp.GetRequiredService<MongoDbContext>(); // Resolve the context
-    return new JavaScriptTemplateRepository(mongoDbContext.JavaScriptTemplates); // Pass the TestingData collection
+    var mongoDbContext = sp.GetRequiredService<MongoDbContext>(); 
+    return new JavaScriptTemplateRepository(mongoDbContext.JavaScriptTemplates); // pass the TestingData collection
 });
 
 var app = builder.Build();

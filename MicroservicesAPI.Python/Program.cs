@@ -24,8 +24,8 @@ builder.Services.AddSingleton<IMongoDatabase>(sp =>
 });
 builder.Services.AddScoped<TestingDataRepository>(sp =>
 {
-    var mongoDbContext = sp.GetRequiredService<MongoDbContext>(); // Resolve the context
-    return new TestingDataRepository(mongoDbContext.TestingData); // Pass the TestingData collection
+    var mongoDbContext = sp.GetRequiredService<MongoDbContext>(); 
+    return new TestingDataRepository(mongoDbContext.TestingData); // pass the TestingData collection
 });
 var app = builder.Build();
 

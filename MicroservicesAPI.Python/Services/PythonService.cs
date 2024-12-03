@@ -83,6 +83,7 @@ public class PythonService()
     {
         return type switch
         {
+            // list of strings --> ['str1', 'str2', ...]
             "int" or "float" or "bool" or "list" => value, 
             "str" => $"\"{value}\"", // Wrap strings in quotes
             _ => throw new NotSupportedException($"Unsupported argument type: {type}")
@@ -124,7 +125,7 @@ from MicroservicesAPI.Shared.Exceptions import TypeMismatchException, ValueMisma
 
 __name__ = '__main__'  # explicitly set name variable
 
-{usersCode}  # User's Python code
+{usersCode}  # user's Python code
 
 if __name__ == '__main__':
     solution = Solution()  # Instantiate the solution class
@@ -133,24 +134,27 @@ if __name__ == '__main__':
     test_cases = [
         {datasets}
     ]
-
+    
+    # enumerate -> returns tuple (index of item, item)
     for index, test_case in enumerate(test_cases):
         arguments = test_case['arguments']
         expectedResult_type = test_case['expectedResult_type']
         expectedResult_value = test_case['expectedResult_value']
 
-        # Execute the method with the given arguments
+        # Execute method, * unpack arguments
         result = solution.{testingData.ExecutionMethodName}(*arguments)
 
         # Check result type
         if type(result) != expectedResult_type:
-            raise TypeMismatchException(f'Test Case {{index}}: Result type {{type(result)}}, Expected {{expectedResult_type}}')
+            print(f'Tests passed {{index}} / {{len(test_cases)}}')
+            raise TypeMismatchException(f'Test Case {{index+1}} failed. Result type: {{type(result)}}, Expected type: {{expectedResult_type}}')
 
         # Check result value
         if result != expectedResult_value:
-            raise ValueMismatchException(f'Test Case {{index}}: Result value {{result}}, Expected {{expectedResult_value}}')
+            print(f'Tests passed {{index}} / {{len(test_cases)}}')
+            raise ValueMismatchException(f'Test Case {{index+1}} failed. Result value: {{result}}, Expected value: {{expectedResult_value}}')
 
-        print(f'Test Case {{index}} passed: {{result}}')
+    print(f'All tests succeeded: {{len(test_cases)}} / {{len(test_cases)}}')    
 ";
         return driverCode;
     }

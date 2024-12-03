@@ -24,6 +24,7 @@ public static class TaskEndpoints
     {
         try
         {
+            // ?? only if there's an error in Db, should not happen
             CodingTask codingTask = await codingTaskRepo.GetCodingTaskByNameAsync(taskRequest.TaskName)
                                 ?? throw new Exception($"Task: '{taskRequest.TaskName}' not found.");
             PythonTemplates pythonTemplates = await pythonTemplateRepo.GetPythonTemplatesByTaskId(codingTask.Id)
