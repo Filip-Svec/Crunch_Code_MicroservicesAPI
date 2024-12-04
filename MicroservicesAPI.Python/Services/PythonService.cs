@@ -120,6 +120,7 @@ public class PythonService()
         string driverCode = $@"
 from typing import List     # to be able to use type hints with lists --> List[str]
 import clr
+import time
 clr.AddReference('MicroservicesAPI.Shared')  # Reference to C# assembly where exceptions are defined
 from MicroservicesAPI.Shared.Exceptions import TypeMismatchException, ValueMismatchException
 
@@ -134,6 +135,8 @@ if __name__ == '__main__':
     test_cases = [
         {datasets}
     ]
+
+    max_execution_time = 0  # Track the longest execution time
     
     # enumerate -> returns tuple (index of item, item)
     for index, test_case in enumerate(test_cases):
@@ -141,8 +144,17 @@ if __name__ == '__main__':
         expectedResult_type = test_case['expectedResult_type']
         expectedResult_value = test_case['expectedResult_value']
 
+        # Start timer
+        start_time = time.time()
+
         # Execute method, * unpack arguments
         result = solution.{testingData.ExecutionMethodName}(*arguments)
+
+        # Stop timer, store longest exec time in ms
+        elapsed_time = (time.time() - start_time) * 1000
+        max_execution_time = max(max_execution_time, elapsed_time)
+
+        # ToDo: raise exception if exec finishes but time limit is exceeded
 
         # Check result type
         if type(result) != expectedResult_type:
@@ -154,7 +166,7 @@ if __name__ == '__main__':
             print(f'Tests passed {{index}} / {{len(test_cases)}}')
             raise ValueMismatchException(f'Test Case {{index+1}} failed. Result value: {{result}}, Expected value: {{expectedResult_value}}')
 
-    print(f'All tests succeeded: {{len(test_cases)}} / {{len(test_cases)}}')    
+    print(f'All tests succeeded: {{len(test_cases)}} / {{len(test_cases)}}; Maximum execution time: {{max_execution_time:.2f}} ms')
 ";
         return driverCode;
     }
