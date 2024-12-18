@@ -18,6 +18,7 @@ builder.Services.AddSingleton<IMongoDatabase>(sp =>
 {
     var mongoClient = new MongoClient(builder.Configuration.GetConnectionString("MongoDb"));
     var databaseName = builder.Configuration.GetSection("MongoDbSettings:DatabaseName").Value;
+    
     return mongoClient.GetDatabase(databaseName);
 });
 
@@ -35,6 +36,11 @@ builder.Services.AddScoped<JavaScriptTemplateRepository>(sp =>
 {
     var mongoDbContext = sp.GetRequiredService<MongoDbContext>(); 
     return new JavaScriptTemplateRepository(mongoDbContext.JavaScriptTemplates); // pass the TestingData collection
+});
+
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.ListenAnyIP(80);
 });
 
 var app = builder.Build();

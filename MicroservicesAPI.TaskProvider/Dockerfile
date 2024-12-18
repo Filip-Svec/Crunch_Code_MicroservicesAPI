@@ -6,6 +6,7 @@ EXPOSE 443
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 COPY ["MicroservicesAPI.TaskProvider/MicroservicesAPI.TaskProvider.csproj", "MicroservicesAPI.TaskProvider/"]
+COPY ["MicroservicesAPI.Shared/MicroservicesAPI.Shared.csproj", "MicroservicesAPI.Shared/"]
 RUN dotnet restore "MicroservicesAPI.TaskProvider/MicroservicesAPI.TaskProvider.csproj"
 COPY . .
 WORKDIR "/src/MicroservicesAPI.TaskProvider"

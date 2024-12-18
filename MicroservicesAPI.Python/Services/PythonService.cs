@@ -28,20 +28,16 @@ public class PythonService()
                 submittedSolutionDto.UsersCode,
                 testingData
             );
-
-            // TODO: START time counter
+            
             // Run execution on a separate thread 
             var executeCodeTask = Task.Run(() =>
             {
-                Console.WriteLine("start");
                 engine.Execute(driverCode, scope);
-                Console.WriteLine("end");
             });
 
             // Main thread waiting for either one to finish
             if (await Task.WhenAny(executeCodeTask, Task.Delay(7 * 1000)) == executeCodeTask)
             {
-                // TODO: END time counter
                 await executeCodeTask; // Awaiting the Task to re-throw exceptions onto the main thread
             }
             else
@@ -170,28 +166,4 @@ if __name__ == '__main__':
 ";
         return driverCode;
     }
-
-    
-    
-// # If list, check type of first element
-//     if isinstance(result, list):
-//         if len(result) > 0:
-//         if type(result[0]) != {expectedListType}:
-//     raise TypeMismatchException(f'List element type: {{type(result[0])}}, Expected: {expectedListType}')
-
-    
-    // private string FormatList(List<object> list)
-    // {
-    //     // This method will recursively format lists. You can extend it as needed.
-    //     return "[" + string.Join(", ", list.Select(item =>
-    //     {
-    //         return item switch
-    //         {
-    //             int or float or bool => item.ToString(),
-    //             string str => $"\"{str}\"",         // Wrap strings in quotes
-    //             List<object> nestedList => FormatList(nestedList),  // Recursive call for nested lists
-    //             _ => throw new NotSupportedException("Unsupported list element type")
-    //         };
-    //     })) + "]";
-    // }
 }

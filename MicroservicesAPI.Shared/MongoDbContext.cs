@@ -16,6 +16,8 @@ public class MongoDbContext
     // IOptions --> configuration pattern, load and pass strongly typed settings (connection string)
     public MongoDbContext(IOptions<MongoDbSettings> settings)
     {
+        Console.WriteLine($"MongoDB Connection: {settings.Value.ConnectionString}");
+        Console.WriteLine($"Database: {settings.Value.DatabaseName}");
         // connection to the Db server using connection string
         var client = new MongoClient(settings.Value.ConnectionString);
         _database = client.GetDatabase(settings.Value.DatabaseName);

@@ -1,0 +1,53 @@
+﻿volumes:
+  mongodbdata:
+
+services:
+  mongo:
+    image: mongo:latest
+    container_name: mongodb
+    restart: always
+    ports:
+      - "27017:27017" # Map MongoDB's default port to your host
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+    volumes:
+      - mongodbdata:/data/db # Persist database data
+  
+  microservicesapi.python:
+    image: microservicesapi.python
+    build:
+      context: .
+      dockerfile: MicroservicesAPI.Python/Dockerfile
+    ports:
+      - "7184:80" # Map container's port 80 to host's port 7184
+    environment:
+      - MongoDbSettings__ConnectionString=mongodb://root:example@mongo:27017
+      - MongoDbSettings__DatabaseName=MicroservicesAPI
+    depends_on:
+      - mongo
+
+  microservicesapi.apigateway:
+    image: microservicesapi.apigateway
+    build:
+      context: .
+      dockerfile: MicroservicesAPI.ApiGateway/Dockerfile
+    ports:
+      - "7000:80" # Map container's port 80 to host's port 7000
+    depends_on:
+      - microservicesapi.python
+      - microservicesapi.taskprovider
+
+  microservicesapi.taskprovider:
+    image: microservicesapi.taskprovider
+    build:
+      context: .
+      dockerfile: MicroservicesAPI.TaskProvider/Dockerfile
+    ports:
+      - "7288:80" # Map container's port 80 to host's port 7288
+    environment:
+      - MongoDbSettings__ConnectionString=mongodb://root:example@mongo:27017
+      - MongoDbSettings__DatabaseName=MicroservicesAPI
+    depends_on:
+      - mongo
+  

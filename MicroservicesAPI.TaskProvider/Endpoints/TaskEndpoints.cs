@@ -33,6 +33,7 @@ public static class TaskEndpoints
                                 ?? throw new Exception($"JavaScript Template with coding task Id: '{codingTask.Id.ToString()}' not found.");
             TaskResponseDto taskResponseDto = TaskResponseBuilder(codingTask, pythonTemplates, javaScriptTemplates);
             return TypedResults.Ok(taskResponseDto);
+            //return TypedResults.BadRequest("we in bby");
         }
         catch (Exception ex)
         {

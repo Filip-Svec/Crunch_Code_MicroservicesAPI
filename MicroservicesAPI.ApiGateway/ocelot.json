@@ -2,35 +2,23 @@
   "Routes": [
     {
       "DownstreamPathTemplate": "/Code/Python",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": 7184
+          "Host": "microservicesapi.python",
+          "Port": 80
         }
       ],
       "UpstreamPathTemplate": "/Code/Python",
       "UpstreamHttpMethod": [ "POST" ]
     },
     {
-      "DownstreamPathTemplate": "/Code/JavaScript",
-      "DownstreamScheme": "https",
-      "DownstreamHostAndPorts": [
-        {
-          "Host": "localhost",
-          "Port": 7199
-        }
-      ],
-      "UpstreamPathTemplate": "/Code/JavaScript",
-      "UpstreamHttpMethod": [ "POST" ]
-    },
-    {
       "DownstreamPathTemplate": "/Code/Task",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": 7288
+          "Host": "microservicesapi.taskprovider",
+          "Port": 80
         }
       ],
       "UpstreamPathTemplate": "/Code/Task",

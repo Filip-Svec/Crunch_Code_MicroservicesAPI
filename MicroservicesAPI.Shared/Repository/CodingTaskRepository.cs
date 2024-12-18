@@ -11,4 +11,5 @@ public class CodingTaskRepository(IMongoCollection<CodingTask> codingTaskCollect
         var filter = _filterBuilder.Eq(codingTask => codingTask.Name, taskName);
         return await _dbCollection.Find(filter).FirstOrDefaultAsync();
     }
+    
 }
