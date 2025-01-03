@@ -28,6 +28,11 @@ builder.Services.AddScoped<TestingDataRepository>(sp =>
     var mongoDbContext = sp.GetRequiredService<MongoDbContext>(); 
     return new TestingDataRepository(mongoDbContext.TestingData); // pass the TestingData collection
 });
+builder.Services.AddScoped<PythonTemplateRepository>(sp =>
+{
+    var mongoDbContext = sp.GetRequiredService<MongoDbContext>(); 
+    return new PythonTemplateRepository(mongoDbContext.PythonTemplates); 
+});
 var app = builder.Build();
 
 

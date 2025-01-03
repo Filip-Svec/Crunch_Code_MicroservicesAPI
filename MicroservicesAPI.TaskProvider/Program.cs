@@ -11,6 +11,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddHttpClient();
 builder.Services.Configure<MongoDbSettings>(builder.Configuration.GetSection("MongoDbSettings"));
 builder.Services.AddSingleton<MongoDbContext>();
 builder.Services.AddSingleton(typeof(IRepository<>), typeof(MongoRepository<>));
@@ -30,12 +31,12 @@ builder.Services.AddScoped<CodingTaskRepository>(sp =>
 builder.Services.AddScoped<PythonTemplateRepository>(sp =>
 {
     var mongoDbContext = sp.GetRequiredService<MongoDbContext>(); 
-    return new PythonTemplateRepository(mongoDbContext.PythonTemplates); // pass the TestingData collection
+    return new PythonTemplateRepository(mongoDbContext.PythonTemplates); 
 });
 builder.Services.AddScoped<JavaScriptTemplateRepository>(sp =>
 {
     var mongoDbContext = sp.GetRequiredService<MongoDbContext>(); 
-    return new JavaScriptTemplateRepository(mongoDbContext.JavaScriptTemplates); // pass the TestingData collection
+    return new JavaScriptTemplateRepository(mongoDbContext.JavaScriptTemplates);
 });
 
 var app = builder.Build();

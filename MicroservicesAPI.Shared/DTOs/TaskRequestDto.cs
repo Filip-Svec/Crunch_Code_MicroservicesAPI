@@ -6,4 +6,7 @@ public class TaskRequestDto
 {
     [JsonPropertyName("TaskName")]
     public string TaskName { get; set; }
+    
+    [JsonPropertyName("Language")]
+    public string Language { get; set; }
 }

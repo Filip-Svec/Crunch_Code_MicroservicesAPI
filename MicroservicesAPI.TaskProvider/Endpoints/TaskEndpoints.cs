@@ -18,8 +18,7 @@ public static class TaskEndpoints
     private static async Task<Results<Ok<TaskResponseDto>, BadRequest<string>>> RetrieveTaskData(
         [FromBody] TaskRequestDto taskRequest,
         [FromServices] CodingTaskRepository codingTaskRepo,
-        [FromServices] PythonTemplateRepository pythonTemplateRepo,
-        [FromServices] JavaScriptTemplateRepository javaScriptTemplateRepo
+        [FromServices] IHttpClientFactory httpClientFactory // Add HttpClientFactory dependency
         )
     {
         try
@@ -27,11 +26,20 @@ public static class TaskEndpoints
             // ?? only if there's an error in Db, should not happen
             CodingTask codingTask = await codingTaskRepo.GetCodingTaskByNameAsync(taskRequest.TaskName)
                                 ?? throw new Exception($"Task: '{taskRequest.TaskName}' not found.");
-            PythonTemplates pythonTemplates = await pythonTemplateRepo.GetPythonTemplatesByTaskId(codingTask.Id)
-                                ?? throw new Exception($"Python Template with coding task Id: '{codingTask.Id.ToString()}' not found.");
-            JavaScriptTemplates javaScriptTemplates = await javaScriptTemplateRepo.GetJsTemplatesByTaskId(codingTask.Id) 
-                                ?? throw new Exception($"JavaScript Template with coding task Id: '{codingTask.Id.ToString()}' not found.");
-            TaskResponseDto taskResponseDto = TaskResponseBuilder(codingTask, pythonTemplates, javaScriptTemplates);
+            
+            string language = taskRequest.Language.ToLower();
+            string languageServiceUrl = $"http://microservicesapi.{language}/Code/{language}/templates?taskId={codingTask.Id}";
+
+            var client = httpClientFactory.CreateClient();
+            var response = await client.GetAsync(languageServiceUrl);
+            
+            if (!response.IsSuccessStatusCode)
+                throw new Exception($"Failed to retrieve templates for language: {taskRequest.Language}. Status code: {response.StatusCode}");
+            
+            TemplateResponseDto templates = await response.Content.ReadFromJsonAsync<TemplateResponseDto>()
+                            ?? throw new Exception($"Invalid response from {languageServiceUrl}");
+            
+            TaskResponseDto taskResponseDto = TaskResponseBuilder(codingTask, templates); //todo send template data here
             return TypedResults.Ok(taskResponseDto);
         }
         catch (Exception ex)
@@ -40,7 +48,7 @@ public static class TaskEndpoints
         }
     }
     
-    private static TaskResponseDto TaskResponseBuilder(CodingTask codingTask, PythonTemplates pythonTemplates, JavaScriptTemplates javaScriptTemplates)
+    private static TaskResponseDto TaskResponseBuilder(CodingTask codingTask, TemplateResponseDto templates)
     {
         return new TaskResponseDto
         {
@@ -50,12 +58,9 @@ public static class TaskEndpoints
             Examples = codingTask.Examples, 
             Constraints = codingTask.Constraints,
             Hints = codingTask.Hints,
-            PythonTemplate = pythonTemplates.TemplateCode,
-            PythonSolution = pythonTemplates.SolutionCode,
-            PythonSolutionDesc = pythonTemplates.SolutionCodeDescription,
-            JavaScriptTemplate = javaScriptTemplates.TemplateCode,
-            JavaScriptSolution = javaScriptTemplates.SolutionCode,
-            JavaScriptSolutionDesc = javaScriptTemplates.SolutionCodeDescription
+            Template = templates.Template,    
+            Solution = templates.Solution,    
+            SolutionDesc = templates.SolutionDesc, 
         };
     }
     

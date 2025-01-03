@@ -4,6 +4,7 @@ using MicroservicesAPI.Shared.Entities;
 using MicroservicesAPI.Shared.Repository;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using MongoDB.Bson;
 
 namespace MicroservicesAPI.Python.Endpoints;
 
@@ -15,6 +16,7 @@ public static class PythonEndpoints
         // "DownstreamPathTemplate": "/Code/Python/get" --> pattern from app.Map
         // "UpstreamPathTemplate": "/Code/Python/get", --> pattern to access endpoint from eg. postman
         app.MapPost("Code/Python", SubmitUsersCode);
+        app.MapGet("Code/python/templates", GetTemplate);
     }
     
     private static async Task<Results<Ok<ResultResponseDto>, UnprocessableEntity<ResultResponseDto>, BadRequest<string>>> SubmitUsersCode(
@@ -41,4 +43,28 @@ public static class PythonEndpoints
             return TypedResults.BadRequest(ex.ToString());
         }
     }
+
+    private static async Task<Results<Ok<TemplateResponseDto>, BadRequest<string>>> GetTemplate(
+        [FromQuery] string taskId,
+        [FromServices] PythonTemplateRepository pythonTemplateRepo)
+    {
+        try
+        {
+            PythonTemplates pythonTemplates = await pythonTemplateRepo.GetPythonTemplatesByTaskId(new ObjectId(taskId)) 
+                            ?? throw new Exception($"Python Template with coding task Id: '{taskId}' not found.");
+            
+            return TypedResults.Ok(new TemplateResponseDto
+            {
+                Template = pythonTemplates.TemplateCode,
+                Solution = pythonTemplates.SolutionCode,
+                SolutionDesc = pythonTemplates.SolutionCodeDescription
+            });
+        }
+        catch (Exception ex)
+        {
+            return TypedResults.BadRequest(ex.ToString());
+        }
+        
+    }
+
 }
