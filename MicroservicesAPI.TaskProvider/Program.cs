@@ -38,11 +38,6 @@ builder.Services.AddScoped<JavaScriptTemplateRepository>(sp =>
     return new JavaScriptTemplateRepository(mongoDbContext.JavaScriptTemplates); // pass the TestingData collection
 });
 
-builder.WebHost.ConfigureKestrel(options =>
-{
-    options.ListenAnyIP(80);
-});
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
