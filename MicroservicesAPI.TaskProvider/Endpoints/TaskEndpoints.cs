@@ -27,19 +27,23 @@ public static class TaskEndpoints
             CodingTask codingTask = await codingTaskRepo.GetCodingTaskByNameAsync(taskRequest.TaskName)
                                 ?? throw new Exception($"Task: '{taskRequest.TaskName}' not found.");
             
+            // Build URL & pass coding task ID
             string language = taskRequest.Language.ToLower();
             string languageServiceUrl = $"http://microservicesapi.{language}/Code/{language}/templates?taskId={codingTask.Id}";
 
+            // Request data (templates) from GET endpoint in language microservice
             var client = httpClientFactory.CreateClient();
             var response = await client.GetAsync(languageServiceUrl);
             
             if (!response.IsSuccessStatusCode)
-                throw new Exception($"Failed to retrieve templates for language: {taskRequest.Language}. Status code: {response.StatusCode}");
+                throw new Exception($"Failed to retrieve templates for {taskRequest.Language}. Status code: {response.StatusCode}");
             
+            // Load data
             TemplateResponseDto templates = await response.Content.ReadFromJsonAsync<TemplateResponseDto>()
                             ?? throw new Exception($"Invalid response from {languageServiceUrl}");
             
-            TaskResponseDto taskResponseDto = TaskResponseBuilder(codingTask, templates); //todo send template data here
+            // Build Task Response
+            TaskResponseDto taskResponseDto = TaskResponseBuilder(codingTask, templates); 
             return TypedResults.Ok(taskResponseDto);
         }
         catch (Exception ex)

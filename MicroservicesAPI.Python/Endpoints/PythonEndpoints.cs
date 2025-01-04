@@ -50,9 +50,11 @@ public static class PythonEndpoints
     {
         try
         {
+            // Fetch python templates
             PythonTemplates pythonTemplates = await pythonTemplateRepo.GetPythonTemplatesByTaskId(new ObjectId(taskId)) 
                             ?? throw new Exception($"Python Template with coding task Id: '{taskId}' not found.");
             
+            // Build Template Response & return
             return TypedResults.Ok(new TemplateResponseDto
             {
                 Template = pythonTemplates.TemplateCode,
