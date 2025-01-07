@@ -13,6 +13,27 @@ public static class TaskEndpoints
         // "DownstreamPathTemplate": "/Code/Python/get" --> pattern from app.Map
         // "UpstreamPathTemplate": "/Code/Python/get", --> pattern to access endpoint from eg. postman
         app.MapGet("Code/Task", RetrieveTaskData);
+        app.MapGet("Code/Task/names", RetrieveTaskNames);
+    }
+
+    private static async Task<Results<Ok<TaskNamesResponseDto>, BadRequest<string>>> RetrieveTaskNames(
+        [FromServices] CodingTaskRepository codingTaskRepo
+        )
+    {
+        try
+        {
+            List<string> taskNames = await codingTaskRepo.GetAllCodingTasksNames()
+                                                        ?? throw new Exception($"There are no Task names available in CodingTasks collection");
+            TaskNamesResponseDto taskNamesResponseDto = new TaskNamesResponseDto
+            {
+                AllTaskNames = taskNames
+            };
+            return TypedResults.Ok(taskNamesResponseDto);
+        }
+        catch (Exception ex)
+        {
+            return TypedResults.BadRequest(ex.ToString());
+        }
     }
     
     private static async Task<Results<Ok<TaskResponseDto>, BadRequest<string>>> RetrieveTaskData(

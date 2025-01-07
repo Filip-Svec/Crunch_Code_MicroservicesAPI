@@ -23,6 +23,18 @@
       ],
       "UpstreamPathTemplate": "/Code/Task",
       "UpstreamHttpMethod": [ "GET" ]
+    },
+    {
+      "DownstreamPathTemplate": "/Code/Task/names",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "microservicesapi.taskprovider",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/Code/Task/names",
+      "UpstreamHttpMethod": [ "GET" ]
     }
   ]
 }

@@ -12,4 +12,12 @@ public class CodingTaskRepository(IMongoCollection<CodingTask> codingTaskCollect
         return await _dbCollection.Find(filter).FirstOrDefaultAsync();
     }
     
+    public async Task<List<string>> GetAllCodingTasksNames()
+    {
+        return await _dbCollection
+            .Find(FilterDefinition<CodingTask>.Empty) // No filter, return all documents
+            .Project(codingTask => codingTask.Name)  // Project only the 'Name' field
+            .ToListAsync();   
+    }
+    
 }
