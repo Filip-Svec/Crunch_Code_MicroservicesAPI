@@ -1,10 +1,11 @@
 {
   "version": 2,
-  "dgSpecHash": "pjcwOjdPvI8=",
+  "dgSpecHash": "Eo5CuPdnh+U=",
   "success": true,
   "projectFilePath": "C:\\Users\\Asus\\FEI\\Diplomka\\Codes\\DP_microservices\\MicroservicesAPI\\MicroservicesAPI.Python\\MicroservicesAPI.Python.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Asus\\.nuget\\packages\\dnsclient\\1.6.1\\dnsclient.1.6.1.nupkg.sha512",
+    "C:\\Users\\Asus\\.nuget\\packages\\docker.dotnet\\3.125.15\\docker.dotnet.3.125.15.nupkg.sha512",
     "C:\\Users\\Asus\\.nuget\\packages\\dynamiclanguageruntime\\1.3.4\\dynamiclanguageruntime.1.3.4.nupkg.sha512",
     "C:\\Users\\Asus\\.nuget\\packages\\ironpython\\3.4.1\\ironpython.3.4.1.nupkg.sha512",
     "C:\\Users\\Asus\\.nuget\\packages\\ironpython.stdlib\\3.4.1\\ironpython.stdlib.3.4.1.nupkg.sha512",
@@ -45,6 +46,7 @@
     "C:\\Users\\Asus\\.nuget\\packages\\system.runtime.compilerservices.unsafe\\5.0.0\\system.runtime.compilerservices.unsafe.5.0.0.nupkg.sha512",
     "C:\\Users\\Asus\\.nuget\\packages\\system.security.accesscontrol\\5.0.0\\system.security.accesscontrol.5.0.0.nupkg.sha512",
     "C:\\Users\\Asus\\.nuget\\packages\\system.security.principal.windows\\5.0.0\\system.security.principal.windows.5.0.0.nupkg.sha512",
+    "C:\\Users\\Asus\\.nuget\\packages\\system.threading.tasks.extensions\\4.5.4\\system.threading.tasks.extensions.4.5.4.nupkg.sha512",
     "C:\\Users\\Asus\\.nuget\\packages\\zstdsharp.port\\0.7.3\\zstdsharp.port.0.7.3.nupkg.sha512"
   ],
   "logs": []

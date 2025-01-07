@@ -25,6 +25,10 @@ services:
       - ASPNETCORE_URLS=http://+:80
     depends_on:
       - mongo
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock # Mount Docker socket into container for communication with Docker daemon (needed for restarting container)
+    labels:
+      - "service_name=microservicesapi.python"  # identifying container regardless of instance (for restarting)
 
   microservicesapi.apigateway:
     image: microservicesapi.apigateway

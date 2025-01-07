@@ -1,4 +1,6 @@
-﻿using MicroservicesAPI.Shared.DTOs;
+﻿using Docker.DotNet;
+using Docker.DotNet.Models;
+using MicroservicesAPI.Shared.DTOs;
 using MicroservicesAPI.Shared.Entities;
 using MicroservicesAPI.Shared.Exceptions;
 using Microsoft.Scripting.Hosting;
@@ -36,7 +38,7 @@ public class PythonService()
             });
 
             // Main thread waiting for either one to finish
-            if (await Task.WhenAny(executeCodeTask, Task.Delay(7 * 1000)) == executeCodeTask)
+            if (await Task.WhenAny(executeCodeTask, Task.Delay(5 * 1000)) == executeCodeTask)
             {
                 await executeCodeTask; // Awaiting the Task to re-throw exceptions onto the main thread
             }
@@ -49,6 +51,25 @@ public class PythonService()
             // Moves the internal pointer back to the start before reading
             outputStream.Seek(0, SeekOrigin.Begin);
             result = new StreamReader(outputStream).ReadToEnd().Trim();
+        }
+        catch (TimeoutException ex)
+        {
+            var response = new ResultResponseDto(GetExceptionTypeName(ex), ex.Message, "");
+            
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await RestartDockerContainerAsync();
+                }
+                catch (Exception restartEx)
+                {
+                    // Log the restart failure if necessary
+                    Console.WriteLine($"Failed to restart Docker container: {restartEx.Message}, {restartEx.GetType()}");
+                }
+            });
+
+            return response;
         }
         catch (TypeMismatchException ex)
         {
@@ -65,6 +86,36 @@ public class PythonService()
             return new ResultResponseDto(GetExceptionTypeName(ex), ex.Message, "");
         }
         return new ResultResponseDto("Success", "this is fine", result);
+    }
+    
+    private async Task RestartDockerContainerAsync()
+    {
+        // Reset docker by container label
+        var labelKey = "service_name";
+        var labelValue = "microservicesapi.python";
+
+        using var dockerClient = new DockerClientConfiguration(new Uri("unix:///var/run/docker.sock")).CreateClient();
+        
+        // list of containers
+        var containers = await dockerClient.Containers.ListContainersAsync(new ContainersListParameters
+        {
+            All = true,
+            Filters = new Dictionary<string, IDictionary<string, bool>>
+            {
+                { "label", new Dictionary<string, bool> { { $"{labelKey}={labelValue}", true } } }
+            }
+        });     
+        
+        // from list to a single container
+        var container = containers.FirstOrDefault();
+        if (container != null)
+        {
+            await dockerClient.Containers.RestartContainerAsync(container.ID, new ContainerRestartParameters());
+        }
+        else
+        {
+            throw new Exception($"No container found with label '{labelKey}={labelValue}'.");
+        }
     }
     
     private string GetExceptionTypeName(Exception ex)
