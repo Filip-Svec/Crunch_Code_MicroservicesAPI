@@ -44,7 +44,6 @@ public class PythonService()
             }
             else
             {
-                // TODO exit the process after it exceeded allotted time (Cancellation Token)
                 throw new TimeoutException();
             }
 
@@ -64,11 +63,9 @@ public class PythonService()
                 }
                 catch (Exception restartEx)
                 {
-                    // Log the restart failure if necessary
-                    Console.WriteLine($"Failed to restart Docker container: {restartEx.Message}, {restartEx.GetType()}");
+                    Console.WriteLine($"Failed to restart Docker container: {restartEx.GetType()}, {restartEx.Message}");
                 }
             });
-
             return response;
         }
         catch (TypeMismatchException ex)
@@ -99,7 +96,7 @@ public class PythonService()
         // list of containers
         var containers = await dockerClient.Containers.ListContainersAsync(new ContainersListParameters
         {
-            All = true,
+            All = true, // all containers (running, stopped, and paused)
             Filters = new Dictionary<string, IDictionary<string, bool>>
             {
                 { "label", new Dictionary<string, bool> { { $"{labelKey}={labelValue}", true } } }
@@ -108,6 +105,7 @@ public class PythonService()
         
         // from list to a single container
         var container = containers.FirstOrDefault();
+        
         if (container != null)
         {
             await dockerClient.Containers.RestartContainerAsync(container.ID, new ContainerRestartParameters());

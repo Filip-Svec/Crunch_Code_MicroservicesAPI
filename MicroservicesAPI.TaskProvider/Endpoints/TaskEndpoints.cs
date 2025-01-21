@@ -3,6 +3,8 @@ using MicroservicesAPI.Shared.Entities;
 using MicroservicesAPI.Shared.Repository;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Polly;
+using Polly.CircuitBreaker;
 
 namespace MicroservicesAPI.TaskProvider.Endpoints;
 
@@ -54,10 +56,37 @@ public static class TaskEndpoints
 
             // Request data (templates) from GET endpoint in language microservice
             var client = httpClientFactory.CreateClient();
-            var response = await client.GetAsync(languageServiceUrl);
+            
+            // Polly Circuit Breaker Policy
+            var circuitBreakerPolicy = Policy
+                .Handle<HttpRequestException>()
+                .Or<TaskCanceledException>()
+                .CircuitBreakerAsync(
+                    exceptionsAllowedBeforeBreaking: 3, // Number of ex before opening circuit
+                    durationOfBreak: TimeSpan.FromSeconds(30), // Time to keep circuit open
+                    // next lines for future logging purposes 
+                    onBreak: (exception, timespan) =>
+                    {
+                        //Console.WriteLine($"Circuit opened for {timespan.TotalSeconds} seconds due to: {exception.Message}");
+                    },
+                    onReset: () =>
+                    {
+                        //Console.WriteLine("Circuit closed: Requests are allowed again.");
+                    });
+            
+            HttpResponseMessage response;
+            try
+            {
+                response = await circuitBreakerPolicy.ExecuteAsync(() => client.GetAsync(languageServiceUrl));
+            }
+            catch (BrokenCircuitException)
+            {
+                // custom handling, try catch not necessary if I don't want to handle it specifically
+                throw new Exception("Circuit is open, skipping requests for the next 30sec");
+            }
             
             if (!response.IsSuccessStatusCode)
-                throw new Exception($"Failed to retrieve templates for {taskRequest.Language}. Status code: {response.StatusCode}");
+                throw new Exception($"Failed to retrieve templates for {taskRequest.Language}");
             
             // Load data
             TemplateResponseDto templates = await response.Content.ReadFromJsonAsync<TemplateResponseDto>()
