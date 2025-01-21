@@ -57,7 +57,7 @@ public static class TaskEndpoints
             // Request data (templates) from GET endpoint in language microservice
             var client = httpClientFactory.CreateClient();
             
-            // Polly Circuit Breaker Policy
+            //  Polly Circuit Breaker Policy
             var circuitBreakerPolicy = Policy
                 .Handle<HttpRequestException>()
                 .Or<TaskCanceledException>()
