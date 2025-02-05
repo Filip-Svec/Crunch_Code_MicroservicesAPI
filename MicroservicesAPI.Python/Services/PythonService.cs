@@ -1,10 +1,6 @@
-﻿using Docker.DotNet;
-using Docker.DotNet.Models;
+﻿using System.Diagnostics;
 using MicroservicesAPI.Shared.DTOs;
 using MicroservicesAPI.Shared.Entities;
-using MicroservicesAPI.Shared.Exceptions;
-using Microsoft.Scripting.Hosting;
-
 
 namespace MicroservicesAPI.Python.Services;
 
@@ -14,15 +10,8 @@ public class PythonService()
         SubmittedSolutionDto submittedSolutionDto, 
         TestingData testingData)
     {
-        ScriptEngine engine = IronPython.Hosting.Python.CreateEngine();
-        var scope = engine.CreateScope(); // Isolating an execution of python code namespacewise
-
-        var outputStream = new MemoryStream(); // Stream that stores data in memory
-        var writer = new StreamWriter(outputStream, System.Text.Encoding.UTF8); // SW writes any output to the MS
-        writer.AutoFlush = true; // Writer auto flushes its buffer after each write operation
-        engine.Runtime.IO.SetOutput(outputStream, writer); // send any output to the MS via the SW instead of stdout
-
         string result = "";
+        string tempFile = Path.GetTempFileName() + ".py";
 
         try
         {
@@ -31,89 +20,47 @@ public class PythonService()
                 testingData
             );
             
-            // Run execution on a separate thread 
-            var executeCodeTask = Task.Run(() =>
-            {
-                engine.Execute(driverCode, scope);
-            });
+            await File.WriteAllTextAsync(tempFile, driverCode);
 
-            // Main thread waiting for either one to finish
-            if (await Task.WhenAny(executeCodeTask, Task.Delay(5 * 1000)) == executeCodeTask)
+            using (Process process = new Process())
             {
-                await executeCodeTask; // Awaiting the Task to re-throw exceptions onto the main thread
-            }
-            else
-            {
-                throw new TimeoutException();
+                process.StartInfo.FileName = "python3";
+                process.StartInfo.Arguments = tempFile;
+                process.StartInfo.RedirectStandardOutput = true;
+                process.StartInfo.RedirectStandardError = true;
+                process.StartInfo.UseShellExecute = false;
+                process.StartInfo.CreateNoWindow = true;
+
+                process.Start();
+
+                var exitTask = process.WaitForExitAsync();
+
+                if (await Task.WhenAny(exitTask, Task.Delay(5000)) == exitTask)
+                {
+                    result = await process.StandardOutput.ReadToEndAsync();
+                }
+                else
+                {
+                    process.Kill();
+                    throw new TimeoutException();
+                }
             }
 
-            // Moves the internal pointer back to the start before reading
-            outputStream.Seek(0, SeekOrigin.Begin);
-            result = new StreamReader(outputStream).ReadToEnd().Trim();
         }
         catch (TimeoutException ex)
         {
-            var response = new ResultResponseDto(GetExceptionTypeName(ex), ex.Message, "");
-            
-            _ = Task.Run(async () =>
-            {
-                try
-                {
-                    await RestartDockerContainerAsync();
-                }
-                catch (Exception restartEx)
-                {
-                    Console.WriteLine($"Failed to restart Docker container: {restartEx.GetType()}, {restartEx.Message}");
-                }
-            });
-            return response;
-        }
-        catch (TypeMismatchException ex)
-        {
             return new ResultResponseDto(GetExceptionTypeName(ex), ex.Message, "");
-        }
-        catch (ValueMismatchException ex)
-        {
-            outputStream.Seek(0, SeekOrigin.Begin);
-            result = new StreamReader(outputStream).ReadToEnd().Trim();
-            return new ResultResponseDto(GetExceptionTypeName(ex), ex.Message, result);
         }
         catch (Exception ex)
         {
             return new ResultResponseDto(GetExceptionTypeName(ex), ex.Message, "");
         }
+        finally
+        {
+            File.Delete(tempFile);
+        }
+        
         return new ResultResponseDto("Success", "this is fine", result);
-    }
-    
-    private async Task RestartDockerContainerAsync()
-    {
-        // Reset docker by container label
-        var labelKey = "service_name";
-        var labelValue = "microservicesapi.python";
-
-        using var dockerClient = new DockerClientConfiguration(new Uri("unix:///var/run/docker.sock")).CreateClient();
-        
-        // list of containers
-        var containers = await dockerClient.Containers.ListContainersAsync(new ContainersListParameters
-        {
-            All = true, // all containers (running, stopped, and paused)
-            Filters = new Dictionary<string, IDictionary<string, bool>>
-            {
-                { "label", new Dictionary<string, bool> { { $"{labelKey}={labelValue}", true } } }
-            }
-        });     
-        
-        // from list to a single container
-        var container = containers.FirstOrDefault();
-        
-        if (container != null)
-        {
-            await dockerClient.Containers.RestartContainerAsync(container.ID, new ContainerRestartParameters());
-        }
-        else
-        {
-            throw new Exception($"No container found with label '{labelKey}={labelValue}'.");
-        }
     }
     
     private string GetExceptionTypeName(Exception ex)
@@ -164,12 +111,7 @@ public class PythonService()
         
         string driverCode = $@"
 from typing import List     # to be able to use type hints with lists --> List[str]
-import clr
 import time
-clr.AddReference('MicroservicesAPI.Shared')  # Reference to C# assembly where exceptions are defined
-from MicroservicesAPI.Shared.Exceptions import TypeMismatchException, ValueMismatchException
-
-__name__ = '__main__'  # explicitly set name variable
 
 {usersCode}  # user's Python code
 
@@ -199,17 +141,15 @@ if __name__ == '__main__':
         elapsed_time = (time.time() - start_time) * 1000
         max_execution_time = max(max_execution_time, elapsed_time)
 
-        # ToDo: raise exception if exec finishes but time limit is exceeded
-
         # Check result type
         if type(result) != expectedResult_type:
             print(f'Tests passed {{index}} / {{len(test_cases)}}')
-            raise TypeMismatchException(f'Test Case {{index+1}} failed. Result type: {{type(result)}}, Expected type: {{expectedResult_type}}')
+            raise TypeError(f'Test Case {{index+1}} failed. Result type: {{type(result)}}, Expected type: {{expectedResult_type}}')
 
         # Check result value
         if result != expectedResult_value:
             print(f'Tests passed {{index}} / {{len(test_cases)}}')
-            raise ValueMismatchException(f'Test Case {{index+1}} failed. Result value: {{result}}, Expected value: {{expectedResult_value}}')
+            raise ValueError(f'Test Case {{index+1}} failed. Result value: {{result}}, Expected value: {{expectedResult_value}}')
 
     print(f'All tests succeeded: {{len(test_cases)}} / {{len(test_cases)}}; Maximum execution time: {{max_execution_time:.2f}} ms')
 ";
