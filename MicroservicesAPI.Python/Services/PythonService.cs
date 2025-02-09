@@ -1,6 +1,9 @@
 ﻿using System.Diagnostics;
+using System.Runtime.Serialization;
 using MicroservicesAPI.Shared.DTOs;
 using MicroservicesAPI.Shared.Entities;
+using Newtonsoft.Json;
+using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace MicroservicesAPI.Python.Services;
 
@@ -30,7 +33,6 @@ public class PythonService()
                 process.StartInfo.RedirectStandardError = true;
                 process.StartInfo.UseShellExecute = false;
                 process.StartInfo.CreateNoWindow = true;
-
                 process.Start();
 
                 var exitTask = process.WaitForExitAsync();
@@ -45,7 +47,17 @@ public class PythonService()
                     throw new TimeoutException();
                 }
             }
-
+            
+            try
+            {
+                return JsonSerializer.Deserialize<ResultResponseDto>(result)
+                       ?? throw new JsonSerializationException("Error in deserialization of python result response.");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw new Exception("deserialization");
+            }
         }
         catch (TimeoutException ex)
         {
@@ -59,8 +71,6 @@ public class PythonService()
         {
             File.Delete(tempFile);
         }
-        
-        return new ResultResponseDto("Success", "this is fine", result);
     }
     
     private string GetExceptionTypeName(Exception ex)
@@ -112,47 +122,96 @@ public class PythonService()
         string driverCode = $@"
 from typing import List     # to be able to use type hints with lists --> List[str]
 import time
+import json
+import sys
+import traceback
 
-{usersCode}  # user's Python code
+
+user_code = """"""{usersCode}""""""
+
+def main():
+    try:
+        # Compile the user's code to check for syntax errors
+        compiled_code = compile(user_code, ""<string>"", ""exec"")
+    except (SyntaxError, IndentationError) as e:
+        print(json.dumps({{
+            'ResultState': type(e).__name__,
+            'DebugMessage': f'{{e.msg}} at line {{e.lineno}}',
+            'Result': ''
+        }}, ensure_ascii=False, indent=4), flush=True)
+        sys.exit(1)  # Exit early since the script is invalid
+
+    namespace = {{}}
+    try:
+        exec(compiled_code, namespace)
+
+        solution_class = namespace.get(""Solution"")  
+        if not solution_class:
+            raise NameError(""Class 'Solution' is not defined in user code"")
+
+        solution = solution_class()  # Instantiate the solution class
+
+        # List of test datasets
+        test_cases = [
+            {datasets}
+        ]
+
+        max_execution_time = 0  # Track the longest execution time
+        
+        # enumerate -> returns tuple (index of item, item)
+        for index, test_case in enumerate(test_cases):
+            arguments = test_case['arguments']
+            expectedResult_type = test_case['expectedResult_type']
+            expectedResult_value = test_case['expectedResult_value']
+
+            # Start timer
+            start_time = time.time()
+
+            # Execute method, * unpack arguments
+            result = getattr(solution, ""{testingData.ExecutionMethodName}"")(*arguments)
+
+            # Stop timer, store longest exec time in ms
+            elapsed_time = (time.time() - start_time) * 1000
+            max_execution_time = max(max_execution_time, elapsed_time)
+
+            # Check result type
+            if type(result) != expectedResult_type:
+                raise TypeError(f'Test Case {{index+1}} failed. Result type: {{type(result)}}, Expected type: {{expectedResult_type}}')
+
+            # Check result value
+            if result != expectedResult_value:
+                raise ValueError(f'Test Case {{index+1}} failed. Result value: {{result}}, Expected value: {{expectedResult_value}}')
+
+        print(json.dumps({{
+            'ResultState': 'Success',
+            'DebugMessage': 'All tests passed',
+            'Result': 'Max execution time: {{:.2f}} ms'.format(max_execution_time)
+        }}))
+
+    except Exception as e:
+        print(json.dumps({{
+            'ResultState': type(e).__name__,
+            'DebugMessage': str(e),
+            'Result': ''
+        }}, ensure_ascii=False, indent=4), flush=True)
+
+    except SystemExit:
+        print(json.dumps({{
+            'ResultState': 'SystemExit',
+            'DebugMessage': 'Process attempted to exit',
+            'Result': ''
+        }}, ensure_ascii=False, indent=4), flush=True)
+
+    except BaseException as e:  # Catches everything else (like MemoryError)
+        print(json.dumps({{
+            'ResultState': 'CriticalError',
+            'DebugMessage': str(e),
+            'Result': ''
+        }}, ensure_ascii=False, indent=4), flush=True)
 
 if __name__ == '__main__':
-    solution = Solution()  # Instantiate the solution class
-
-    # List of test datasets
-    test_cases = [
-        {datasets}
-    ]
-
-    max_execution_time = 0  # Track the longest execution time
-    
-    # enumerate -> returns tuple (index of item, item)
-    for index, test_case in enumerate(test_cases):
-        arguments = test_case['arguments']
-        expectedResult_type = test_case['expectedResult_type']
-        expectedResult_value = test_case['expectedResult_value']
-
-        # Start timer
-        start_time = time.time()
-
-        # Execute method, * unpack arguments
-        result = solution.{testingData.ExecutionMethodName}(*arguments)
-
-        # Stop timer, store longest exec time in ms
-        elapsed_time = (time.time() - start_time) * 1000
-        max_execution_time = max(max_execution_time, elapsed_time)
-
-        # Check result type
-        if type(result) != expectedResult_type:
-            print(f'Tests passed {{index}} / {{len(test_cases)}}')
-            raise TypeError(f'Test Case {{index+1}} failed. Result type: {{type(result)}}, Expected type: {{expectedResult_type}}')
-
-        # Check result value
-        if result != expectedResult_value:
-            print(f'Tests passed {{index}} / {{len(test_cases)}}')
-            raise ValueError(f'Test Case {{index+1}} failed. Result value: {{result}}, Expected value: {{expectedResult_value}}')
-
-    print(f'All tests succeeded: {{len(test_cases)}} / {{len(test_cases)}}; Maximum execution time: {{max_execution_time:.2f}} ms')
-";
+    main()
+    ";
         return driverCode;
     }
 }

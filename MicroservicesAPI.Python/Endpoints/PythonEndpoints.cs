@@ -30,8 +30,8 @@ public static class PythonEndpoints
             ResultResponseDto resultResponseDto = await pythonService.ProcessUsersCode(submittedSolutionDto, testingData);
             
             if (resultResponseDto.ResultState is 
-                "Success" or "ValueMismatchException" or 
-                "TypeMismatchException") 
+                "Success" or "ValueError" or 
+                "TypeError") 
             {
                 return TypedResults.Ok(resultResponseDto);
             }
