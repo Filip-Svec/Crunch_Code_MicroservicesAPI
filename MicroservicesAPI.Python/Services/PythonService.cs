@@ -120,94 +120,63 @@ public class PythonService()
         }));
         
         string driverCode = $@"
-from typing import List     # to be able to use type hints with lists --> List[str]
 import time
 import json
-import sys
-import traceback
 
 
-user_code = """"""{usersCode}""""""
+def printResponse(resultState: str, debugMessage: str, result: str):
+    print(json.dumps({{
+        'ResultState': resultState,
+        'DebugMessage': debugMessage,
+        'Result': result
+    }}))
 
 def main():
-    try:
-        # Compile the user's code to check for syntax errors
-        compiled_code = compile(user_code, ""<string>"", ""exec"")
-    except (SyntaxError, IndentationError) as e:
-        print(json.dumps({{
-            'ResultState': type(e).__name__,
-            'DebugMessage': f'{{e.msg}} at line {{e.lineno}}',
-            'Result': ''
-        }}, ensure_ascii=False, indent=4), flush=True)
-        sys.exit(1)  # Exit early since the script is invalid
 
+    user_code = """"""{usersCode}""""""
     namespace = {{}}
     try:
-        exec(compiled_code, namespace)
+        compiled_code = compile(user_code, ""<string>"", ""exec"")      # Compile code to check Syntax/Indentations
+        exec(compiled_code, namespace)                                  # Runs code inside the namespace
 
-        solution_class = namespace.get(""Solution"")  
-        if not solution_class:
-            raise NameError(""Class 'Solution' is not defined in user code"")
+        if (solution_class := namespace.get(""Solution"")) is None:     # Retrieve 'Solution' from the namespace
+            raise NameError(""Class 'Solution' is not defined"")
 
-        solution = solution_class()  # Instantiate the solution class
-
-        # List of test datasets
-        test_cases = [
-            {datasets}
-        ]
-
-        max_execution_time = 0  # Track the longest execution time
+        solution = solution_class()         # Instantiate the solution class
+        test_cases = [{datasets}]           # List of test datasets
+        max_execution_time = 0              # Track the longest execution time
         
-        # enumerate -> returns tuple (index of item, item)
+        # Test user's code, enumerate -> returns tuple (index of item, item)
         for index, test_case in enumerate(test_cases):
             arguments = test_case['arguments']
             expectedResult_type = test_case['expectedResult_type']
             expectedResult_value = test_case['expectedResult_value']
 
-            # Start timer
+            # Start timer, Execute method, * Unpack arguments, Stop & Store longest exec time (ms)
             start_time = time.time()
-
-            # Execute method, * unpack arguments
             result = getattr(solution, ""{testingData.ExecutionMethodName}"")(*arguments)
-
-            # Stop timer, store longest exec time in ms
             elapsed_time = (time.time() - start_time) * 1000
             max_execution_time = max(max_execution_time, elapsed_time)
 
-            # Check result type
+            # Check result type & value
             if type(result) != expectedResult_type:
-                raise TypeError(f'Test Case {{index+1}} failed. Result type: {{type(result)}}, Expected type: {{expectedResult_type}}')
-
-            # Check result value
+                raise TypeError(f'Test Case {{index+1}} failed. Result type: {{type(result)}}, Expected type: {{expectedResult_type}}')         
             if result != expectedResult_value:
                 raise ValueError(f'Test Case {{index+1}} failed. Result value: {{result}}, Expected value: {{expectedResult_value}}')
 
-        print(json.dumps({{
-            'ResultState': 'Success',
-            'DebugMessage': 'All tests passed',
-            'Result': 'Max execution time: {{:.2f}} ms'.format(max_execution_time)
-        }}))
+        printResponse('Success', 'All tests passed', 'Max execution time: {{:.4f}} ms'.format(max_execution_time))
+
+    except (SyntaxError, IndentationError) as e:
+        printResponse(type(e).__name__, f'{{e.msg}} at line {{e.lineno}}', '')
 
     except Exception as e:
-        print(json.dumps({{
-            'ResultState': type(e).__name__,
-            'DebugMessage': str(e),
-            'Result': ''
-        }}, ensure_ascii=False, indent=4), flush=True)
+        printResponse(type(e).__name__, str(e), '')
 
     except SystemExit:
-        print(json.dumps({{
-            'ResultState': 'SystemExit',
-            'DebugMessage': 'Process attempted to exit',
-            'Result': ''
-        }}, ensure_ascii=False, indent=4), flush=True)
+        printResponse('SystemExit', 'Process attempted to exit', '')
 
     except BaseException as e:  # Catches everything else (like MemoryError)
-        print(json.dumps({{
-            'ResultState': 'CriticalError',
-            'DebugMessage': str(e),
-            'Result': ''
-        }}, ensure_ascii=False, indent=4), flush=True)
+        printResponse('CriticalError', str(e), '')
 
 if __name__ == '__main__':
     main()
