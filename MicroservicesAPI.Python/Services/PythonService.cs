@@ -132,19 +132,20 @@ def printResponse(resultState: str, debugMessage: str, result: str):
     }}))
 
 def main():
-
-    user_code = """"""{usersCode}""""""
-    namespace = {{}}
+    user_code = """"""{usersCode}""""""                         # Get user's code
+    execution_method = ""{testingData.ExecutionMethodName}""    # Get execution method name
+    test_cases = [{datasets}]                                   # Get list of test datasets
+    max_execution_time = 0                                      # Track the longest execution time
+    user_code_namespace = {{}}                                  # Create sandbox for user's code
     try:
         compiled_code = compile(user_code, ""<string>"", ""exec"")      # Compile code to check Syntax/Indentations
-        exec(compiled_code, namespace)                                  # Runs code inside the namespace
+        exec(compiled_code, user_code_namespace)                        # Runs code inside the namespace
 
-        if (solution_class := namespace.get(""Solution"")) is None:     # Retrieve 'Solution' from the namespace
+        # Check & retrieve 'Solution' class, Check if execution method is defined
+        if (solution_class := user_code_namespace.get(""Solution"")) is None:
             raise NameError(""Class 'Solution' is not defined"")
-
-        solution = solution_class()         # Instantiate the solution class
-        test_cases = [{datasets}]           # List of test datasets
-        max_execution_time = 0              # Track the longest execution time
+        if not hasattr(solution_class(), execution_method):
+            raise AttributeError(f""Method '{{execution_method}}' is not defined."")
         
         # Test user's code, enumerate -> returns tuple (index of item, item)
         for index, test_case in enumerate(test_cases):
@@ -152,9 +153,9 @@ def main():
             expectedResult_type = test_case['expectedResult_type']
             expectedResult_value = test_case['expectedResult_value']
 
-            # Start timer, Execute method, * Unpack arguments, Stop & Store longest exec time (ms)
+            # Start timer, Retrieve & Execute method, * Unpack arguments, Stop & Store longest exec time (ms)
             start_time = time.time()
-            result = getattr(solution, ""{testingData.ExecutionMethodName}"")(*arguments)
+            result = getattr(solution_class(), execution_method)(*arguments)
             elapsed_time = (time.time() - start_time) * 1000
             max_execution_time = max(max_execution_time, elapsed_time)
 
@@ -164,7 +165,7 @@ def main():
             if result != expectedResult_value:
                 raise ValueError(f'Test Case {{index+1}} failed. Result value: {{result}}, Expected value: {{expectedResult_value}}')
 
-        printResponse('Success', 'All tests passed', 'Max execution time: {{:.4f}} ms'.format(max_execution_time))
+        printResponse('Success', 'All tests passed', f'Max execution time: {{max_execution_time:.4f}} ms')
 
     except (SyntaxError, IndentationError) as e:
         printResponse(type(e).__name__, f'{{e.msg}} at line {{e.lineno}}', '')
@@ -172,10 +173,10 @@ def main():
     except Exception as e:
         printResponse(type(e).__name__, str(e), '')
 
-    except SystemExit:
+    except SystemExit:                                                  # Catches sys.exit()
         printResponse('SystemExit', 'Process attempted to exit', '')
 
-    except BaseException as e:  # Catches everything else (like MemoryError)
+    except BaseException as e:                                          # Catches everything else (MemoryError)
         printResponse('CriticalError', str(e), '')
 
 if __name__ == '__main__':
