@@ -19,7 +19,7 @@ public static class PythonEndpoints
         app.MapGet("Code/python/templates", GetTemplate);
     }
     
-    private static async Task<Results<Ok<ResultResponseDto>, UnprocessableEntity<ResultResponseDto>, BadRequest<string>>> SubmitUsersCode(
+    private static async Task<Results<Ok<ResultResponseDto>, UnprocessableEntity<ResultResponseDto>, BadRequest<string>, BadRequest<ResultResponseDto>>> SubmitUsersCode(
         [FromBody] SubmittedSolutionDto submittedSolutionDto,
         [FromServices] TestingDataRepository testingDataRepo,
         [FromServices] PythonService pythonService)
@@ -29,13 +29,16 @@ public static class PythonEndpoints
             TestingData testingData = await testingDataRepo.GetTestingDataByTaskIdAsync(submittedSolutionDto.TaskId); 
             ResultResponseDto resultResponseDto = await pythonService.ProcessUsersCode(submittedSolutionDto, testingData);
             
-            if (resultResponseDto.ResultState is 
-                "Success" or "ValueError" or 
-                "TypeError") 
+            if (resultResponseDto.ResultStatusCode is "200") 
             {
                 return TypedResults.Ok(resultResponseDto);
             }
-            return TypedResults.UnprocessableEntity(resultResponseDto);
+            if (resultResponseDto.ResultStatusCode is "422")
+            {
+                return TypedResults.UnprocessableEntity(resultResponseDto);
+            }
+            return TypedResults.BadRequest(resultResponseDto);
+            
         }
         catch (Exception ex)
         {

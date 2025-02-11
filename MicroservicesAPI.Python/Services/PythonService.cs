@@ -48,24 +48,17 @@ public class PythonService()
                 }
             }
             
-            try
-            {
-                return JsonSerializer.Deserialize<ResultResponseDto>(result)
-                       ?? throw new JsonSerializationException("Error in deserialization of python result response.");
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                throw new Exception("deserialization");
-            }
+            return JsonSerializer.Deserialize<ResultResponseDto>(result)
+                   ?? throw new JsonSerializationException("Error in deserialization of python result response.");
+            
         }
         catch (TimeoutException ex)
         {
-            return new ResultResponseDto(GetExceptionTypeName(ex), ex.Message, "");
+            return new ResultResponseDto(GetExceptionTypeName(ex), ex.Message, "422");
         }
         catch (Exception ex)
         {
-            return new ResultResponseDto(GetExceptionTypeName(ex), ex.Message, "");
+            return new ResultResponseDto(GetExceptionTypeName(ex), ex.Message, "500");
         }
         finally
         {
@@ -83,34 +76,38 @@ public class PythonService()
     
     private string FormatArgument(string type, string value)
     {
+        // int, float, bool, list - as is; strings - in ""; else - throw
         return type switch
         {
-            // list of strings --> ['str1', 'str2', ...]
-            "int" or "float" or "bool" or "list" => value, 
-            "str" => $"\"{value}\"", // Wrap strings in quotes
-            _ => throw new NotSupportedException($"Unsupported argument type: {type}")
+            "int" or "float" or "bool" or "list" => value,      // List of strings --> ['str1', 'str2', ...]
+            "str" => $"\"{value}\"",
+            _ => throw new NotSupportedException($"Unsupported argument type in DB: {type}")
         };
     }
     
     private string DriverCodeGenerator(string usersCode, TestingData testingData) 
     {
+        // * Depends on DB string storage --> useful if - string: "word", useless if - string: "'word'"
+        // Join each dataset - "dataset1, dataset2,..."
         string datasets = string.Join(", ", testingData.TaskDatasets.Select(dataset =>
         {
+            // Join formatted arguments - "arg1, arg2, ..." 
             string formattedArguments = string.Join(", ", dataset.Input.Select(input =>
-                FormatArgument(input.type, input.value)));
-
+                // *
+                FormatArgument(input.type, input.value))
+            );
+            
+            // *, only if there is an error in DB, this should never be needed
             string expectedResultType = dataset.Output.type switch
             {
-                "int" => "int",
-                "str" => "str",
-                "float" => "float",
-                "bool" => "bool",
-                "list" => "list",
+                "int" => "int", "str" => "str", "float" => "float", "bool" => "bool", "list" => "list",
                 _ => "object"
             };
-
+            
+            // *
             string expectedResultValue = FormatArgument(dataset.Output.type, dataset.Output.value);
 
+            // Return dataset
             return $@"
             {{
                 'arguments': [{formattedArguments}],
@@ -123,20 +120,29 @@ public class PythonService()
 import time
 import json
 
+class ResultTypeMismatchError(Exception):
+    """"""Raised when the result type does not match the expected type.""""""
+    pass
 
-def printResponse(resultState: str, debugMessage: str, result: str):
+class ResultValueMismatchError(Exception):
+    """"""Raised when the result value does not match the expected value.""""""
+    pass
+
+def printResponse(resultState: str, debugMessage: str, resultStatusCode: str):
     print(json.dumps({{
         'ResultState': resultState,
         'DebugMessage': debugMessage,
-        'Result': result
+        'ResultStatusCode': resultStatusCode
     }}))
 
 def main():
+
     user_code = """"""{usersCode}""""""                         # Get user's code
     execution_method = ""{testingData.ExecutionMethodName}""    # Get execution method name
     test_cases = [{datasets}]                                   # Get list of test datasets
     max_execution_time = 0                                      # Track the longest execution time
     user_code_namespace = {{}}                                  # Create sandbox for user's code
+
     try:
         compiled_code = compile(user_code, ""<string>"", ""exec"")      # Compile code to check Syntax/Indentations
         exec(compiled_code, user_code_namespace)                        # Runs code inside the namespace
@@ -152,7 +158,7 @@ def main():
             arguments = test_case['arguments']
             expectedResult_type = test_case['expectedResult_type']
             expectedResult_value = test_case['expectedResult_value']
-
+            
             # Start timer, Retrieve & Execute method, * Unpack arguments, Stop & Store longest exec time (ms)
             start_time = time.time()
             result = getattr(solution_class(), execution_method)(*arguments)
@@ -161,23 +167,26 @@ def main():
 
             # Check result type & value
             if type(result) != expectedResult_type:
-                raise TypeError(f'Test Case {{index+1}} failed. Result type: {{type(result)}}, Expected type: {{expectedResult_type}}')         
+                raise ResultTypeMismatchError(f'Test Case {{index+1}} failed. Result type: {{type(result)}}, Expected type: {{expectedResult_type}}')         
             if result != expectedResult_value:
-                raise ValueError(f'Test Case {{index+1}} failed. Result value: {{result}}, Expected value: {{expectedResult_value}}')
+                raise ResultValueMismatchError(f'Test Case {{index+1}} failed. Result value: {{result}}, Expected value: {{expectedResult_value}}')
 
-        printResponse('Success', 'All tests passed', f'Max execution time: {{max_execution_time:.4f}} ms')
+        printResponse('Success', f'All tests passed, Max execution time: {{max_execution_time:.4f}} ms', '200')
 
     except (SyntaxError, IndentationError) as e:
-        printResponse(type(e).__name__, f'{{e.msg}} at line {{e.lineno}}', '')
+        printResponse(type(e).__name__, f'{{e.msg}} at line {{e.lineno}}', '422')
+
+    except (ResultTypeMismatchError, ResultValueMismatchError) as e:
+        printResponse(type(e).__name__, str(e), '422')
 
     except Exception as e:
-        printResponse(type(e).__name__, str(e), '')
+        printResponse(type(e).__name__, str(e), '422')
 
     except SystemExit:                                                  # Catches sys.exit()
-        printResponse('SystemExit', 'Process attempted to exit', '')
+        printResponse('SystemExit', 'Process attempted to exit', '422')
 
-    except BaseException as e:                                          # Catches everything else (MemoryError)
-        printResponse('CriticalError', str(e), '')
+    except BaseException as e:                                          # MemoryError, KeyboardInterrupt...
+        printResponse('CriticalError', str(e), '422')
 
 if __name__ == '__main__':
     main()

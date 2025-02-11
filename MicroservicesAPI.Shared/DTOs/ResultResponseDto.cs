@@ -2,7 +2,7 @@
 
 namespace MicroservicesAPI.Shared.DTOs;
 
-public class ResultResponseDto(String resultState, String debugMessage, String? result)
+public class ResultResponseDto(String resultState, String debugMessage, String? resultStatusCode)
 {
     [JsonPropertyName("ResultState")]
     public String ResultState { get; set; } = resultState;
@@ -10,6 +10,6 @@ public class ResultResponseDto(String resultState, String debugMessage, String? 
     [JsonPropertyName("DebugMessage")]
     public String DebugMessage { get; set; } = debugMessage;
     
-    [JsonPropertyName("Result")]
-    public String? Result { get; set; } = result;
+    [JsonPropertyName("ResultStatusCode")]
+    public String? ResultStatusCode { get; set; } = resultStatusCode;
 }
