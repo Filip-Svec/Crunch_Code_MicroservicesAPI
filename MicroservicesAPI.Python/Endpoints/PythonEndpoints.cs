@@ -29,6 +29,7 @@ public static class PythonEndpoints
             TestingData testingData = await testingDataRepo.GetTestingDataByTaskIdAsync(submittedSolutionDto.TaskId); 
             ResultResponseDto resultResponseDto = await pythonService.ProcessUsersCode(submittedSolutionDto, testingData);
             
+            // Regarding user's code - 200 & 422, backend failure - 500
             if (resultResponseDto.ResultStatusCode is "200") 
             {
                 return TypedResults.Ok(resultResponseDto);
@@ -37,6 +38,7 @@ public static class PythonEndpoints
             {
                 return TypedResults.UnprocessableEntity(resultResponseDto);
             }
+            // There is no equivalent to 500, thus using 400
             return TypedResults.BadRequest(resultResponseDto);
             
         }

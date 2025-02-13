@@ -13,33 +13,36 @@ public class PythonService()
         SubmittedSolutionDto submittedSolutionDto, 
         TestingData testingData)
     {
-        string result = "";
-        string tempFile = Path.GetTempFileName() + ".py";
+        string result = "";                                 // Stores output from python driver code
+        string tempFile = Path.GetTempFileName() + ".py";   // Temporary file, stores python driver code
 
         try
         {
-            string driverCode = DriverCodeGenerator(
+            string driverCode = DriverCodeGenerator(        // Generates python driver code that will be executed
                 submittedSolutionDto.UsersCode,
                 testingData
             );
             
+            // Writes (async) generated Python code to the temporary file
             await File.WriteAllTextAsync(tempFile, driverCode);
 
+            // Starts a new process to execute the Python script (driver code)
             using (Process process = new Process())
             {
-                process.StartInfo.FileName = "python3";
-                process.StartInfo.Arguments = tempFile;
-                process.StartInfo.RedirectStandardOutput = true;
-                process.StartInfo.RedirectStandardError = true;
-                process.StartInfo.UseShellExecute = false;
-                process.StartInfo.CreateNoWindow = true;
-                process.Start();
+                process.StartInfo.FileName = "python3";             // Executable to run
+                process.StartInfo.Arguments = tempFile;             // Pass the temporary file (driver code)
+                process.StartInfo.RedirectStandardOutput = true;    // Capture stdout
+                process.StartInfo.RedirectStandardError = true;     // Capture stderr
+                process.StartInfo.UseShellExecute = false;          // False - allows redirection of stdout & err
+                process.StartInfo.CreateNoWindow = true;            // Runs in the background (no window required)
+                process.Start();                                    // Start process (execute script in temp file)
 
-                var exitTask = process.WaitForExitAsync();
+                var exitTask = process.WaitForExitAsync();          // Waits for process to finish
 
+                // Time limit defined by Task delay, Which ever task finishes first
                 if (await Task.WhenAny(exitTask, Task.Delay(5000)) == exitTask)
                 {
-                    result = await process.StandardOutput.ReadToEndAsync();
+                    result = await process.StandardOutput.ReadToEndAsync();     // Read process output
                 }
                 else
                 {
@@ -48,21 +51,22 @@ public class PythonService()
                 }
             }
             
+            // Parse result into ResultResponseDto
             return JsonSerializer.Deserialize<ResultResponseDto>(result)
                    ?? throw new JsonSerializationException("Error in deserialization of python result response.");
             
         }
-        catch (TimeoutException ex)
+        catch (TimeoutException ex)     // Process (execution of driver code) ran for too long
         {
             return new ResultResponseDto(GetExceptionTypeName(ex), ex.Message, "422");
         }
-        catch (Exception ex)
+        catch (Exception ex)            // All other non-user related errors
         {
             return new ResultResponseDto(GetExceptionTypeName(ex), ex.Message, "500");
         }
         finally
         {
-            File.Delete(tempFile);
+            File.Delete(tempFile);      // Ensure temporary file is deleted after 
         }
     }
     
