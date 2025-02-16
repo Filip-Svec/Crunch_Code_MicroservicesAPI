@@ -62,9 +62,9 @@ public static class TaskEndpoints
                 .Handle<HttpRequestException>()
                 .Or<TaskCanceledException>()
                 .CircuitBreakerAsync(
-                    exceptionsAllowedBeforeBreaking: 3, // Number of ex before opening circuit
-                    durationOfBreak: TimeSpan.FromSeconds(30), // Time to keep circuit open
-                    // next lines for future logging purposes 
+                    exceptionsAllowedBeforeBreaking: 3,         // Number of ex before opening circuit
+                    durationOfBreak: TimeSpan.FromSeconds(30),  // Time to keep circuit open
+                    // Just for future logging purposes 
                     onBreak: (exception, timespan) =>
                     {
                         //Console.WriteLine($"Circuit opened for {timespan.TotalSeconds} seconds due to: {exception.Message}");
@@ -81,7 +81,7 @@ public static class TaskEndpoints
             }
             catch (BrokenCircuitException)
             {
-                // custom handling, try catch not necessary if I don't want to handle it specifically
+                // Custom handling, try catch not necessary if I don't want to handle it specifically
                 throw new Exception("Circuit is open, skipping requests for the next 30sec");
             }
             

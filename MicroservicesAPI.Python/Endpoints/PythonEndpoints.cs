@@ -38,7 +38,7 @@ public static class PythonEndpoints
             {
                 return TypedResults.UnprocessableEntity(resultResponseDto);
             }
-            // There is no equivalent to 500, thus using 400
+            // There is no equivalent to 500, thus using 400 for now
             return TypedResults.BadRequest(resultResponseDto);
             
         }

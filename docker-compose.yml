@@ -15,20 +15,16 @@ services:
       - mongodbdata:/data/db    # Persist data
   
   microservicesapi.python:
-    image: microservicesapi.python
-    build:
-      context: .
-      dockerfile: MicroservicesAPI.Python/Dockerfile
-    environment:
+    image: microservicesapi.python    # Image that's going to be built from the build context
+    build:                            # Build instructions for creating image   
+      context: .                      # Use current dir as context
+      dockerfile: MicroservicesAPI.Python/Dockerfile    # Path to dockerfile relative to context
+    environment:                      # Environment variables available in container, configure services
       - MongoDbSettings__ConnectionString=mongodb://root:example@mongo:27017
       - MongoDbSettings__DatabaseName=MicroservicesAPI
       - ASPNETCORE_URLS=http://+:80
-    depends_on:
+    depends_on:         # Services that need to be up n running before this service starts 
       - mongo
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock # Mount Docker socket into container for communication with Docker daemon (needed for restarting container)
-    labels:
-      - "service_name=microservicesapi.python"  # identifying container regardless of instance (for restarting)
 
   microservicesapi.apigateway:
     image: microservicesapi.apigateway
