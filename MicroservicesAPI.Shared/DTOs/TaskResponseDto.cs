@@ -15,7 +15,7 @@ public class TaskResponseDto
     public string Description { get; set; }
     
     [JsonPropertyName("Examples")]
-    public List<Examples> Examples { get; set; }
+    public List<Example> Examples { get; set; }
     
     [JsonPropertyName("Constraints")]
     public List<string> Constraints { get; set; }

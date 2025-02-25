@@ -19,11 +19,12 @@ public static class TaskEndpoints
     }
 
     private static async Task<Results<Ok<TaskNamesResponseDto>, BadRequest<string>>> RetrieveTaskNames(
-        [FromServices] CodingTaskRepository codingTaskRepo
-        )
+        [FromServices] CodingTaskRepository codingTaskRepo,
+        [FromServices] ILogger<object> logger)
     {
         try
         {
+            logger.LogError("test");
             List<string> taskNames = await codingTaskRepo.GetAllCodingTasksNames()
                                                         ?? throw new Exception($"There are no Task names available in CodingTasks collection");
             TaskNamesResponseDto taskNamesResponseDto = new TaskNamesResponseDto

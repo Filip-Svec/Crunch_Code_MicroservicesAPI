@@ -1,5 +1,6 @@
 ﻿volumes:
   mongodbdata:
+  seqdata:
 
 services:
   mongo:
@@ -51,4 +52,25 @@ services:
     depends_on:
       - mongo
     
+  seq:
+    restart: unless-stopped
+    container_name: seq
+    image: microservicesapi.seq
+    build:
+      context: .
+      dockerfile: seq/Dockerfile
+    environment:
+      - ACCEPT_EULA=Y
+    expose:
+      - 5341
+    ports:
+      - 45005:80
+    volumes:
+      - seqdata:/data
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:80/health || exit 1" ]
+      interval: 5s
+      timeout: 10s
+      start_period: 10s
+      retries: 10
   

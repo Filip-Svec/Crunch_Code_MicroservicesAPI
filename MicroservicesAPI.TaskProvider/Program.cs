@@ -4,6 +4,7 @@ using MicroservicesAPI.Shared.Repository.Interfaces;
 using MicroservicesAPI.Shared.Settings;
 using MicroservicesAPI.TaskProvider.Endpoints;
 using MongoDB.Driver;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -35,6 +36,11 @@ builder.Services.AddScoped<JavaScriptTemplateRepository>(sp =>
 {
     var mongoDbContext = sp.GetRequiredService<MongoDbContext>(); 
     return new JavaScriptTemplateRepository(mongoDbContext.JavaScriptTemplates);
+});
+
+builder.Logging.ClearProviders();
+builder.Host.UseSerilog((context, loggerConfiguration) => {
+    loggerConfiguration.ReadFrom.Configuration(context.Configuration);
 });
 
 var app = builder.Build();
