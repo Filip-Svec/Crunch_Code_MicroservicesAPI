@@ -40,7 +40,8 @@ public static class TaskEndpoints
     }
     
     private static async Task<Results<Ok<TaskResponseDto>, BadRequest<string>>> RetrieveTaskData(
-        [FromBody] TaskRequestDto taskRequest,
+        [FromQuery] string taskName,
+        [FromQuery] string language,
         [FromServices] CodingTaskRepository codingTaskRepo,
         [FromServices] IHttpClientFactory httpClientFactory // Add HttpClientFactory dependency
         )
@@ -48,11 +49,11 @@ public static class TaskEndpoints
         try
         {
             // ?? only if there's an error in Db, should not happen
-            CodingTask codingTask = await codingTaskRepo.GetCodingTaskByNameAsync(taskRequest.TaskName)
-                                ?? throw new Exception($"Task: '{taskRequest.TaskName}' not found.");
+            CodingTask codingTask = await codingTaskRepo.GetCodingTaskByNameAsync(taskName)
+                                   ?? throw new Exception($"Task: '{taskName}' not found.");
             
             // Build URL & pass coding task ID
-            string language = taskRequest.Language.ToLower();
+            language = language.ToLower();
             string languageServiceUrl = $"http://microservicesapi.{language}/Code/{language}/templates?taskId={codingTask.Id}";
 
             // Request data (templates) from GET endpoint in language microservice
@@ -87,7 +88,7 @@ public static class TaskEndpoints
             }
             
             if (!response.IsSuccessStatusCode)
-                throw new Exception($"Failed to retrieve templates for {taskRequest.Language}");
+                throw new Exception($"Failed to retrieve templates for {language}");
             
             // Load data
             TemplateResponseDto templates = await response.Content.ReadFromJsonAsync<TemplateResponseDto>()
