@@ -62,7 +62,7 @@ Containers communicate internally and the Docker Compose file manages networking
 
 In this section, I’d like to include a rough roadmap, mainly for the backend part of the coding platform.  
 
-- Implementing a message broker like **RabbitMQ / MassTransit** to limit the number of requests that are being processed concurrently.  
+- Implement rate limiting to limit the number of requests that are being processed concurrently.  
 - Logging and monitoring via **Seq**.  
 - General improvement of security when processing user-submitted code.  
 - Authorization and authentication.  
